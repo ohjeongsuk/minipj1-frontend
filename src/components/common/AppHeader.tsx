@@ -12,6 +12,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "cn";
 
+import { ThemeToggle } from "@/components/common/ThemeToggle";
 import { Button } from "@/components/ui/button";
 
 /**
@@ -75,8 +76,9 @@ export function AppHeader({ nickname, onLogout }: AppHeaderProps) {
             ))}
           </nav>
 
-          <div className="ml-auto flex items-center gap-3">
-            <span className="text-body font-medium">{nickname}</span>
+          <div className="ml-auto flex items-center gap-2 sm:gap-3">
+            <span className="hidden text-body font-medium sm:inline">{nickname}</span>
+            <ThemeToggle />
             <Button variant="outline" size="sm" onClick={onLogout}>
               <LogOut className="size-4" aria-hidden />
               로그아웃

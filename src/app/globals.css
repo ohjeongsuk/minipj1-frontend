@@ -187,6 +187,54 @@
   }
 }
 
+/*
+ * 사용자가 헤더 버튼으로 "다크" 를 명시적으로 고른 경우.
+ *
+ * 위 미디어쿼리는 "시스템 모드"(data-theme 속성이 없는 상태)를 담당하고,
+ * 이 블록은 시스템이 라이트여도 다크로 고정한다.
+ *
+ * ⚠️ 두 블록의 값은 반드시 같아야 한다. 한쪽만 고치면 "시스템 다크" 와
+ *    "직접 고른 다크" 의 색이 갈라진다.
+ */
+:root[data-theme="dark"] {
+  /*
+   * 다크에서는 그림자를 끈다. 배경(#0A0A0A)이 이미 거의 검정이라
+   * 검은 그림자는 보이지 않으면서 카드 주변만 탁하게 만든다.
+   * 면 구분은 카드 자체의 1px border 가 계속 맡는다.
+   */
+  --hero-shadow: none;
+
+  --background: #0a0a0a;
+  --foreground: #fafafa;
+  --card: #171717;
+  --card-foreground: #fafafa;
+  --popover: #171717;
+  --popover-foreground: #fafafa;
+
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
+  --secondary: #262626;
+  --secondary-foreground: #fafafa;
+  --muted: #262626;
+  --muted-foreground: #a3a3a3;
+  --accent: #262626;
+  --accent-foreground: #fafafa;
+  --destructive: #f87171;
+
+  --border: #262626;
+  --input: #303030;
+  --ring: #6366f1;
+
+  --sidebar: #171717;
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #6366f1;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #262626;
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: #262626;
+  --sidebar-ring: #6366f1;
+}
+
 /* ── 모션 감소 ───────────────────────────────────────────────────────
  *
  * ⚠️ useReducedMotion 만으로는 부족하다. 그 훅은 Motion(JS)이 그리는 애니메이션만
