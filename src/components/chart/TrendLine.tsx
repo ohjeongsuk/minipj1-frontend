@@ -30,14 +30,35 @@ interface TrendLineProps {
 /** 0 · 중간 · 최댓값 */
 const TICK_RATIOS = [1, 0.5, 0];
 
+/**
+ * 축 최댓값을 읽기 좋은 수로 올린다. 1 · 2 · 2.5 · 5 × 10^n 중 하나가 된다.
+ *
+ * 데이터 최댓값을 그대로 쓰면 눈금이 168,336 / 84,168 처럼 나와
+ * "얼마쯤인가" 를 가늠하는 데 오히려 머리를 쓰게 된다.
+ * 200,000 / 100,000 이면 한눈에 읽힌다.
+ *
+ * 덤으로 최고점이 천장에 닿지 않아 최고점 라벨이 카드 밖으로 밀리지 않는다.
+ */
+function niceCeil(value: number): number {
+  if (value <= 0) {
+    return 1;
+  }
+  const magnitude = 10 ** Math.floor(Math.log10(value));
+  const normalized = value / magnitude;
+  const step = normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 2.5 ? 2.5 : normalized <= 5 ? 5 : 10;
+  return step * magnitude;
+}
+
 export function TrendLine({ data, height = 200, label = "추이", unit = "원" }: TrendLineProps) {
   if (data.length === 0) {
     return null;
   }
 
   const values = data.map((d) => d.value);
-  const max = Math.max(...values, 1);
+  const dataMax = Math.max(...values, 0);
   const total = values.reduce((sum, v) => sum + v, 0);
+  // 선의 높이와 눈금이 같은 기준을 써야 격자선 위에 정확히 얹힌다
+  const max = niceCeil(dataMax);
 
   // 최고점은 하나만 표시한다. 같은 값이 여러 개면 첫 번째를 쓴다
   const peakIndex = values.indexOf(Math.max(...values));
@@ -52,18 +73,6 @@ export function TrendLine({ data, height = 200, label = "추이", unit = "원" }
   const points = data.map((_, i) => pos(i));
   const polyline = points.map((p) => `${p.x},${p.y}`).join(" ");
   const area = `${points[0].x},100 ${polyline} ${points[points.length - 1].x},100`;
-
-  /*
-   * 축 눈금을 천원 단위로 줄인다. 168,336 같은 여섯 자리가 세 개 쌓이면
-   * 축 라벨이 정작 봐야 할 선보다 넓어진다.
-   *
-   * ⚠️ 무조건 1000 으로 나누면 안 된다. 최댓값이 작을 때(예: 800원)
-   *    눈금이 전부 0 이 되어 축이 무의미해진다. 중간 눈금까지 의미가 남는
-   *    10,000원 이상일 때만 환산하고, 그 아래는 원 단위 그대로 둔다.
-   */
-  const inThousands = max >= 10000;
-  const tickText = (value: number) =>
-    inThousands ? formatAmount(Math.round(value / 1000)) : formatAmount(value);
 
   const peakPos = pos(peakIndex);
   // 최고점 라벨이 왼쪽/오른쪽 끝에서 잘리지 않도록 붙는 방향을 바꾼다
@@ -83,21 +92,17 @@ export function TrendLine({ data, height = 200, label = "추이", unit = "원" }
         `가장 많이 쓴 날은 ${peak.name}일 ${formatAmount(peak.value)}${unit}`
       }
     >
-      {/* 단위는 눈금마다 반복하지 않고 한 번만 적는다 */}
-      {inThousands ? (
-        <span className="self-end text-caption text-muted-foreground">단위: 천원</span>
-      ) : null}
-
-      {/* 세로축 라벨이 차지할 자리를 padding 으로 비워 둔다 */}
-      <div className="relative pl-12" style={{ height }}>
+      {/* 세로축 라벨이 차지할 자리를 padding 으로 비워 둔다. "200,000원" 이 들어갈 폭이다 */}
+      <div className="relative pl-20" style={{ height }}>
         {/* ── 세로축 눈금 (HTML) ───────────────────────────── */}
         {TICK_RATIOS.map((ratio) => (
           <span
             key={ratio}
-            className="absolute left-0 w-10 -translate-y-1/2 text-right text-caption text-muted-foreground tabular-nums"
+            className="absolute left-0 w-[4.5rem] -translate-y-1/2 text-right text-caption text-muted-foreground tabular-nums"
             style={{ top: `${(1 - ratio) * 100}%` }}
           >
-            {tickText(max * ratio)}
+            {formatAmount(max * ratio)}
+            {unit}
           </span>
         ))}
 
@@ -141,7 +146,7 @@ export function TrendLine({ data, height = 200, label = "추이", unit = "원" }
         {peak.value > 0 ? (
           <div
             className="pointer-events-none absolute"
-            style={{ left: `calc(3rem + ${peakPos.x}% - ${peakPos.x}% * 3 / 100)`, top: `${peakPos.y}%` }}
+            style={{ left: `calc(5rem + ${peakPos.x}% - ${peakPos.x}% * 5 / 100)`, top: `${peakPos.y}%` }}
           >
             <span className="absolute size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary ring-2 ring-card" />
             {/*
@@ -165,7 +170,7 @@ export function TrendLine({ data, height = 200, label = "추이", unit = "원" }
 
       {/* ── 가로축 라벨 (HTML) ─────────────────────────────
           모든 날짜를 적으면 겹친다. 처음·중간·마지막 셋만 둔다. */}
-      <div className="flex justify-between pl-12 text-caption text-muted-foreground tabular-nums">
+      <div className="flex justify-between pl-20 text-caption text-muted-foreground tabular-nums">
         <span>{data[0].name}일</span>
         {data.length > 2 ? <span>{data[Math.floor((data.length - 1) / 2)].name}일</span> : null}
         {data.length > 1 ? <span>{data[data.length - 1].name}일</span> : null}
