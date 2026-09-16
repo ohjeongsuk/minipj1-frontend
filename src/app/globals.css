@@ -1,0 +1,275 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/*
+ * 다크 모드는 prefers-color-scheme 미디어쿼리만 쓴다.
+ *
+ * ⚠️ @custom-variant dark (&:is(.dark *)) 를 두지 않는다.
+ *    이 프로젝트에는 테마 토글 UI 가 없다. 토글이 없는데 class 전략을 쓰면
+ *    서버 렌더 시점에 .dark 클래스가 없어 라이트로 그려졌다가
+ *    클라이언트에서 다크로 바뀌는 깜빡임(FOUC)이 생긴다.
+ *    미디어쿼리는 CSS 만으로 처리되어 hydration 문제가 아예 없다.
+ *
+ * ⚠️ @theme 을 @media 안에 중첩하지 않는다. Tailwind v4 에서 @theme 은 최상위 전용이다.
+ *    라이트 값을 :root 에 선언해 유틸리티를 만들고, 다크에서는 그 커스텀 프로퍼티를 덮어쓴다.
+ */
+
+/* ── shadcn 시맨틱 변수를 Tailwind 유틸리티로 노출 ───────────────────── */
+@theme inline {
+  --shadow-hero: var(--hero-shadow);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-pretendard);
+  --font-mono: var(--font-pretendard);
+  --font-heading: var(--font-pretendard);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* ── 이 앱 고유 토큰 (라이트/다크에서 값이 바뀌지 않는다) ─────────────── */
+@theme {
+  /*
+   * 수입/지출 색은 단일 액센트 규칙의 예외다.
+   * 금액의 방향을 색으로 구분하는 것이 이 앱의 핵심 정보이기 때문이다.
+   * text-income / bg-expense 같은 유틸리티로 쓴다.
+   */
+  --color-income: #10b981;
+  --color-expense: #ef4444;
+
+  /* 카테고리 팔레트 — 색 미지정 시 순서대로 배정한다 */
+  --color-cat-1: #ef4444;
+  --color-cat-2: #f59e0b;
+  --color-cat-3: #10b981;
+  --color-cat-4: #4f46e5;
+  --color-cat-5: #ec4899;
+  --color-cat-6: #14b8a6;
+  --color-cat-7: #8b5cf6;
+  --color-cat-8: #f97316;
+  --color-cat-9: #737373;
+
+  /* 타이포 — 본문 15px / 항목 제목 16px / 캡션 13px */
+  --text-caption: 0.8125rem;
+  --text-body: 0.9375rem;
+  --text-item: 1rem;
+}
+
+/* ── 라이트 (기본값) ─────────────────────────────────────────────────── */
+:root {
+  --radius: 0.5rem; /* 버튼·인풋 rounded-lg */
+
+  /*
+   * 잔액 카드 전용 그림자 (shadow-hero).
+   *
+   * ⚠️ 이 프로젝트의 기본 규칙은 "그림자 대신 1px border" 이고 그림자는 모달·드롭다운에만 쓴다.
+   *    이 토큰은 대시보드 잔액 카드 하나만을 위한 의도된 예외다.
+   *    화면에서 임의의 그림자를 쓰지 말고 이 토큰만 쓴다. 예외를 한 곳에 묶어 두려는 것이다.
+   *
+   * 두 겹인 이유 - 넓고 흐린 층이 카드를 띄우고, 좁고 옅은 층이 아래 모서리를 붙잡는다.
+   * 한 겹만 쓰면 카드가 배경에서 떠 버리거나(넓은 층만) 그냥 테두리처럼 보인다(좁은 층만).
+   */
+  --hero-shadow:
+    0 6px 20px -4px rgb(0 0 0 / 0.1),
+    0 2px 6px -2px rgb(0 0 0 / 0.05);
+
+  --background: #fafafa;
+  --foreground: #171717;
+  --card: #ffffff;
+  --card-foreground: #171717;
+  --popover: #ffffff;
+  --popover-foreground: #171717;
+
+  /* 액센트는 단일 컬러 하나만 쓴다 */
+  --primary: #4f46e5;
+  --primary-foreground: #ffffff;
+  --secondary: #f5f5f5;
+  --secondary-foreground: #171717;
+  --muted: #f5f5f5;
+  --muted-foreground: #737373;
+  --accent: #f5f5f5;
+  --accent-foreground: #171717;
+  --destructive: #ef4444;
+
+  /* 그림자 대신 1px border 로 면을 구분한다 */
+  --border: #e5e5e5;
+  --input: #e5e5e5;
+  --ring: #4f46e5;
+
+  --chart-1: #ef4444;
+  --chart-2: #f59e0b;
+  --chart-3: #10b981;
+  --chart-4: #4f46e5;
+  --chart-5: #ec4899;
+
+  --sidebar: #ffffff;
+  --sidebar-foreground: #171717;
+  --sidebar-primary: #4f46e5;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f5f5f5;
+  --sidebar-accent-foreground: #171717;
+  --sidebar-border: #e5e5e5;
+  --sidebar-ring: #4f46e5;
+}
+
+/* ── 다크 (값만 덮어쓴다) ────────────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    /*
+     * 다크에서는 그림자를 끈다. 배경(#0A0A0A)이 이미 거의 검정이라
+     * 검은 그림자는 보이지 않으면서 카드 주변만 탁하게 만든다.
+     * 면 구분은 카드 자체의 1px border 가 계속 맡는다.
+     */
+    --hero-shadow: none;
+
+    --background: #0a0a0a;
+    --foreground: #fafafa;
+    --card: #171717;
+    --card-foreground: #fafafa;
+    --popover: #171717;
+    --popover-foreground: #fafafa;
+
+    --primary: #6366f1;
+    --primary-foreground: #ffffff;
+    --secondary: #262626;
+    --secondary-foreground: #fafafa;
+    --muted: #262626;
+    --muted-foreground: #a3a3a3;
+    --accent: #262626;
+    --accent-foreground: #fafafa;
+    --destructive: #f87171;
+
+    --border: #262626;
+    --input: #303030;
+    --ring: #6366f1;
+
+    --sidebar: #171717;
+    --sidebar-foreground: #fafafa;
+    --sidebar-primary: #6366f1;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #262626;
+    --sidebar-accent-foreground: #fafafa;
+    --sidebar-border: #262626;
+    --sidebar-ring: #6366f1;
+  }
+}
+
+/*
+ * 사용자가 헤더 버튼으로 "다크" 를 명시적으로 고른 경우.
+ *
+ * 위 미디어쿼리는 "시스템 모드"(data-theme 속성이 없는 상태)를 담당하고,
+ * 이 블록은 시스템이 라이트여도 다크로 고정한다.
+ *
+ * ⚠️ 두 블록의 값은 반드시 같아야 한다. 한쪽만 고치면 "시스템 다크" 와
+ *    "직접 고른 다크" 의 색이 갈라진다.
+ */
+:root[data-theme="dark"] {
+  /*
+   * 다크에서는 그림자를 끈다. 배경(#0A0A0A)이 이미 거의 검정이라
+   * 검은 그림자는 보이지 않으면서 카드 주변만 탁하게 만든다.
+   * 면 구분은 카드 자체의 1px border 가 계속 맡는다.
+   */
+  --hero-shadow: none;
+
+  --background: #0a0a0a;
+  --foreground: #fafafa;
+  --card: #171717;
+  --card-foreground: #fafafa;
+  --popover: #171717;
+  --popover-foreground: #fafafa;
+
+  --primary: #6366f1;
+  --primary-foreground: #ffffff;
+  --secondary: #262626;
+  --secondary-foreground: #fafafa;
+  --muted: #262626;
+  --muted-foreground: #a3a3a3;
+  --accent: #262626;
+  --accent-foreground: #fafafa;
+  --destructive: #f87171;
+
+  --border: #262626;
+  --input: #303030;
+  --ring: #6366f1;
+
+  --sidebar: #171717;
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #6366f1;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #262626;
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: #262626;
+  --sidebar-ring: #6366f1;
+}
+
+/* ── 모션 감소 ───────────────────────────────────────────────────────
+ *
+ * ⚠️ useReducedMotion 만으로는 부족하다. 그 훅은 Motion(JS)이 그리는 애니메이션만
+ *    끄고, CSS transition 은 건드리지 못한다. 예산 막대의 transition-[width] 가
+ *    거기 해당해서, 훅을 넣어둔 화면에서도 막대만 계속 움직였다.
+ *
+ * 그래서 CSS 쪽은 CSS 로 막는다. JS 애니메이션은 계속 useReducedMotion 이 맡는다.
+ *
+ * ⚠️ 0s 가 아니라 0.01ms 를 쓴다. 0s 로 두면 transitionend/animationend 가
+ *    발생하지 않아 그 이벤트를 기다리는 코드가 영영 멈춘다.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-size: var(--text-body);
+  }
+  html {
+    @apply font-sans;
+  }
+  /* 금액은 자릿수가 세로로 맞아야 읽힌다. 목록에서 비례 숫자는 어긋나 보인다 */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
