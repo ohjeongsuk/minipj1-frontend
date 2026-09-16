@@ -17,6 +17,7 @@
 
 /* ── shadcn 시맨틱 변수를 Tailwind 유틸리티로 노출 ───────────────────── */
 @theme inline {
+  --shadow-hero: var(--hero-shadow);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-pretendard);
@@ -91,6 +92,20 @@
 :root {
   --radius: 0.5rem; /* 버튼·인풋 rounded-lg */
 
+  /*
+   * 잔액 카드 전용 그림자 (shadow-hero).
+   *
+   * ⚠️ 이 프로젝트의 기본 규칙은 "그림자 대신 1px border" 이고 그림자는 모달·드롭다운에만 쓴다.
+   *    이 토큰은 대시보드 잔액 카드 하나만을 위한 의도된 예외다.
+   *    화면에서 임의의 그림자를 쓰지 말고 이 토큰만 쓴다. 예외를 한 곳에 묶어 두려는 것이다.
+   *
+   * 두 겹인 이유 - 넓고 흐린 층이 카드를 띄우고, 좁고 옅은 층이 아래 모서리를 붙잡는다.
+   * 한 겹만 쓰면 카드가 배경에서 떠 버리거나(넓은 층만) 그냥 테두리처럼 보인다(좁은 층만).
+   */
+  --hero-shadow:
+    0 6px 20px -4px rgb(0 0 0 / 0.1),
+    0 2px 6px -2px rgb(0 0 0 / 0.05);
+
   --background: #fafafa;
   --foreground: #171717;
   --card: #ffffff;
@@ -133,6 +148,13 @@
 /* ── 다크 (값만 덮어쓴다) ────────────────────────────────────────────── */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
+    /*
+     * 다크에서는 그림자를 끈다. 배경(#0A0A0A)이 이미 거의 검정이라
+     * 검은 그림자는 보이지 않으면서 카드 주변만 탁하게 만든다.
+     * 면 구분은 카드 자체의 1px border 가 계속 맡는다.
+     */
+    --hero-shadow: none;
+
     --background: #0a0a0a;
     --foreground: #fafafa;
     --card: #171717;
