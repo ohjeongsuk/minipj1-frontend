@@ -11,11 +11,13 @@ import type { ChartDatum } from "./types";
 interface TrendLineProps {
   data: ChartDatum[];
   height?: number;
+  /** 스크린리더용 설명. 무엇의 추이인지는 화면이 정한다 */
+  label?: string;
 }
 
 const PADDING = { top: 12, right: 8, bottom: 22, left: 8 };
 
-export function TrendLine({ data, height = 140 }: TrendLineProps) {
+export function TrendLine({ data, height = 140, label = "추이" }: TrendLineProps) {
   if (data.length === 0) {
     return null;
   }
@@ -45,7 +47,7 @@ export function TrendLine({ data, height = 140 }: TrendLineProps) {
       preserveAspectRatio="none"
       className="h-[140px] w-full"
       role="img"
-      aria-label={`월별 추이. 최근 값 ${formatAmount(data[data.length - 1].value)}원`}
+      aria-label={`${label}. 마지막 값 ${formatAmount(data[data.length - 1].value)}원`}
     >
       <polygon points={area} fill="var(--color-primary)" opacity={0.08} />
       <polyline
@@ -57,7 +59,11 @@ export function TrendLine({ data, height = 140 }: TrendLineProps) {
         strokeLinejoin="round"
         vectorEffect="non-scaling-stroke"
       />
-      {points.map((point, index) => (
+      {/*
+        preserveAspectRatio="none" 이라 점이 가로로 늘어난다.
+        포인트가 많으면 찌그러진 점이 줄지어 보기 나쁘므로 선만 남긴다.
+      */}
+      {points.length <= 12 && points.map((point, index) => (
         <circle
           key={`${point.datum.name}-${index}`}
           cx={point.x}

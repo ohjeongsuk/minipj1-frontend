@@ -18,6 +18,11 @@ export interface ChartDatum {
   value: number;
   /** 카테고리 색. 없으면 팔레트에서 순서대로 배정한다 */
   color?: string;
+  /**
+   * 이 항목만의 상한. 예산 소진율처럼 항목마다 기준이 다를 때 쓴다.
+   * Recharts 의 data 객체도 여분 키를 갖는 것이 보통이라 교체 가능성을 해치지 않는다.
+   */
+  max?: number;
 }
 
 /** 색이 없는 항목에 배정할 팔레트 (CLAUDE.md 8장) */
