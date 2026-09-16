@@ -13,11 +13,17 @@ interface CategoryDonutProps {
   /** 가운데에 표시할 총액. 생략하면 data 합계를 쓴다 */
   total?: number;
   size?: number;
+  /**
+   * 범례에 함께 보여줄 정수 퍼센트. data 와 같은 순서여야 한다.
+   * 합이 100 이 되도록 배분하는 책임은 호출부(lib/percent)에 있다 —
+   * 각 비율을 따로 반올림하면 합이 99% 나 101% 로 보인다.
+   */
+  percents?: number[];
 }
 
 const STROKE = 18;
 
-export function CategoryDonut({ data, total, size = 180 }: CategoryDonutProps) {
+export function CategoryDonut({ data, total, size = 180, percents }: CategoryDonutProps) {
   const sum = total ?? data.reduce((acc, d) => acc + d.value, 0);
   const radius = (size - STROKE) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -83,17 +89,18 @@ export function CategoryDonut({ data, total, size = 180 }: CategoryDonutProps) {
       </svg>
 
       {/* 범례 — 텍스트를 색 위에 올리지 않고 색 옆에 둔다(대비 계산이 불가능하다) */}
-      <ul className="flex w-full flex-col gap-2 sm:w-auto">
-        {segments.map((segment) => (
+      <ul className="flex w-full min-w-0 flex-col gap-2">
+        {segments.map((segment, index) => (
           <li key={segment.key} className="flex items-center gap-2 text-caption">
             <span
               className="size-2.5 shrink-0 rounded-full"
               style={{ backgroundColor: segment.color }}
               aria-hidden
             />
-            <span className="flex-1 truncate">{segment.name}</span>
-            <span className="tabular-nums text-muted-foreground">
-              {formatAmount(segment.value)}
+            <span className="min-w-0 flex-1 truncate">{segment.name}</span>
+            <span className="shrink-0 tabular-nums text-muted-foreground">
+              {formatAmount(segment.value)}원
+              {percents ? ` · ${percents[index]}%` : null}
             </span>
           </li>
         ))}

@@ -11,7 +11,7 @@ import { resolveColor, type ChartDatum } from "./types";
  */
 interface BudgetBarProps {
   data: ChartDatum[];
-  /** 각 항목의 상한. 없으면 data 중 최댓값을 기준으로 상대 길이를 그린다 */
+  /** 공통 상한. 없으면 data 중 최댓값을 기준으로 상대 길이를 그린다 */
   max?: number;
   /** 소진율 표시 여부 (예산 화면에서 true) */
   showRatio?: boolean;
@@ -23,7 +23,10 @@ export function BudgetBar({ data, max, showRatio = false }: BudgetBarProps) {
   return (
     <ul className="flex flex-col gap-3">
       {data.map((datum, index) => {
-        const ratio = ceiling > 0 ? datum.value / ceiling : 0;
+        // 항목별 상한이 있으면 그것을 먼저 쓴다. 예산은 카테고리마다 금액이 다르다.
+        // 상한이 0 이면 나누지 않는다 — Infinity 가 JSON 에 실려 NaN% 로 표시되는 경로다
+        const limit = datum.max ?? ceiling;
+        const ratio = limit > 0 ? datum.value / limit : 0;
         const exceeded = ratio > 1;
         const color = resolveColor(datum.color, index);
 
@@ -31,7 +34,17 @@ export function BudgetBar({ data, max, showRatio = false }: BudgetBarProps) {
           <li key={`${datum.name}-${index}`} className="flex flex-col gap-1.5">
             <div className="flex items-baseline justify-between gap-2 text-caption">
               <span className="truncate">{datum.name}</span>
-              <span className="tabular-nums text-muted-foreground">
+              {/*
+                초과는 막대뿐 아니라 수치도 빨강으로 바꾼다.
+                카테고리 색이 원래 빨강인 항목(식비 #EF4444)이 있어
+                막대 색만으로는 초과와 구분되지 않는다.
+              */}
+              <span
+                className={cn(
+                  "tabular-nums",
+                  exceeded ? "font-semibold text-expense" : "text-muted-foreground",
+                )}
+              >
                 {formatAmount(datum.value)}
                 {showRatio ? ` · ${formatPercent(ratio)}` : null}
               </span>
