@@ -16,6 +16,7 @@ import { ApiRequestError } from "@/lib/apiClient";
 import { safeColor } from "@/lib/color";
 import { currentMonth } from "@/lib/date";
 import { resolveError } from "@/lib/errorMessages";
+import { HAIRLINE_ITEM, HAIRLINE_LIST } from "@/lib/utils";
 import { formatAmount, parseAmount } from "@/lib/money";
 
 /** useSearchParams 를 쓰므로 Suspense 로 감싼다 */
@@ -122,17 +123,21 @@ function BudgetsContent() {
         </p>
       ) : null}
 
-      <ul className="flex flex-col gap-2">
+      <ul className={HAIRLINE_LIST}>
         {budgets.data.map((item) => (
           <li
             key={item.categoryId}
-            className="flex items-center gap-3 rounded-xl border border-border p-3"
+            className={`flex items-center gap-3 p-3 ${HAIRLINE_ITEM}`}
           >
             <span
               aria-hidden
-              className="size-3 shrink-0 rounded-full"
-              style={{ background: safeColor(item.color, "#737373") }}
-            />
+              className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border"
+            >
+              <span
+                className="size-3 rounded-full"
+                style={{ background: safeColor(item.color, "#737373") }}
+              />
+            </span>
             <Label htmlFor={`budget-${item.categoryId}`} className="min-w-0 flex-1 truncate">
               {item.name}
             </Label>

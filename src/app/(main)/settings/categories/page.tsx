@@ -1,6 +1,6 @@
 "use client";
 
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -27,6 +27,7 @@ import {
 import { ApiRequestError } from "@/lib/apiClient";
 import { safeColor } from "@/lib/color";
 import { resolveError } from "@/lib/errorMessages";
+import { HAIRLINE_ITEM, HAIRLINE_LIST } from "@/lib/utils";
 import type { CategoryResponse, TransactionType } from "@/types/api";
 
 export default function CategoriesPage() {
@@ -39,6 +40,8 @@ export default function CategoriesPage() {
 
   const [editingId, setEditingId] = useState<number | null>(null);
   const [pendingDelete, setPendingDelete] = useState<CategoryResponse | null>(null);
+  // 추가 폼은 접어 둔다. 목록이 이 화면의 본문이고 추가는 가끔 하는 일이다
+  const [addingFor, setAddingFor] = useState<TransactionType | null>(null);
   const [createError, setCreateError] = useState("");
   const [editError, setEditError] = useState("");
 
@@ -112,9 +115,9 @@ export default function CategoriesPage() {
 
         {(["EXPENSE", "INCOME"] as const).map((value) => (
           <TabsContent key={value} value={value} className="flex flex-col gap-4">
-            <ul className="flex flex-col gap-2">
+            <ul className={HAIRLINE_LIST}>
               {visible.map((category) => (
-                <li key={category.id} className="rounded-xl border border-border p-3">
+                <li key={category.id} className={`p-3 ${HAIRLINE_ITEM}`}>
                   {editingId === category.id ? (
                     <CategoryForm
                       initial={category}
@@ -131,10 +134,16 @@ export default function CategoriesPage() {
                     <div className="flex items-center gap-3">
                       <span
                         aria-hidden
-                        className="size-3 shrink-0 rounded-full"
-                        style={{ background: safeColor(category.color, "#737373") }}
-                      />
-                      <span className="min-w-0 flex-1 truncate text-body">{category.name}</span>
+                        className="flex size-9 shrink-0 items-center justify-center rounded-full border border-border"
+                      >
+                        <span
+                          className="size-3 rounded-full"
+                          style={{ background: safeColor(category.color, "#737373") }}
+                        />
+                      </span>
+                      <span className="min-w-0 flex-1 truncate text-item font-semibold">
+                        {category.name}
+                      </span>
                       <span className="shrink-0 text-caption text-muted-foreground tabular-nums">
                         순서 {category.sortOrder}
                       </span>
@@ -163,18 +172,42 @@ export default function CategoriesPage() {
               ))}
             </ul>
 
-            <section className="flex flex-col gap-3 rounded-xl border border-border p-4">
-              <h2 className="text-caption text-muted-foreground">
-                {value === "EXPENSE" ? "지출" : "수입"} 카테고리 추가
-              </h2>
-              {/* 구분은 현재 탭이 정한다. 폼에 구분 입력이 없다 */}
-              <CategoryForm
-                type={value}
-                submitting={create.isPending}
-                errorMessage={createError}
-                onSubmit={handleCreate}
-              />
-            </section>
+            {addingFor === value ? (
+              <section className="flex flex-col gap-3 rounded-xl border border-border p-4">
+                <h2 className="text-caption text-muted-foreground">
+                  {value === "EXPENSE" ? "지출" : "수입"} 카테고리 추가
+                </h2>
+                {/* 구분은 현재 탭이 정한다. 폼에 구분 입력이 없다 */}
+                <CategoryForm
+                  type={value}
+                  submitting={create.isPending}
+                  errorMessage={createError}
+                  onSubmit={handleCreate}
+                  onCancel={() => {
+                    setAddingFor(null);
+                    setCreateError("");
+                  }}
+                />
+              </section>
+            ) : (
+              /*
+               * 목록 끝에 가운데 정렬로 둔다. 목록보다 좁게 두어
+               * 항목 하나가 아니라 목록 전체에 대한 동작임을 위치로 드러낸다.
+               * 추가 후에도 폼은 닫지 않는다 - 여러 개를 연달아 만드는 경우가 많다.
+               */
+              <div className="flex justify-center">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setAddingFor(value);
+                    setCreateError("");
+                  }}
+                >
+                  <Plus className="size-4" aria-hidden />
+                  {value === "EXPENSE" ? "지출" : "수입"} 카테고리 추가
+                </Button>
+              </div>
+            )}
           </TabsContent>
         ))}
       </Tabs>
