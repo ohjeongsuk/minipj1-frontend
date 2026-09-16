@@ -67,7 +67,7 @@ export default function DataPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-semibold">데이터</h1>
 
       <section className="flex flex-col gap-3 rounded-xl border border-border p-5">
