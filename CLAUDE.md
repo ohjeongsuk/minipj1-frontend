@@ -19,6 +19,17 @@ npm run build    # 프리렌더 단계까지 확인 — dev 에서 통과하고 
 npm run lint
 ```
 
+> ⚠️ **`npm run build` 전에 `npm run dev`를 내린다.** 둘은 같은 `.next` 디렉터리를 쓴다.
+> 동시에 돌리면 한쪽이 깨지는데, **증상이 소스 문제처럼 보여 원인을 찾는 데 시간이 걸린다.**
+>
+> | 어느 쪽이 방해받나 | 증상 |
+> |---|---|
+> | build 가 dev 의 청크를 덮어씀 | 브라우저가 **빈 화면**. 콘솔에 청크 404 |
+> | dev 가 build 의 매니페스트를 건드림 | `Cannot find module for page: /(auth)/oauth/callback/page` 로 프리렌더 실패 |
+>
+> 둘 다 **소스와 무관하다.** 막히면 `dev` 를 끄고 `rm -rf .next` 후 다시 빌드한다.
+> `.next` 는 `.gitignore` 에 있는 순수 빌드 산출물이라 지워도 잃는 것이 없다.
+
 - `.env.example`을 `.env.local`로 복사하고 값을 채운다 (`NEXT_PUBLIC_API_BASE_URL`).
 - **shadcn 컴포넌트 추가 시 `--legacy-peer-deps`를 쓴다.** React 19 + Tailwind 4 조합에서 peer dependency 충돌이 난다.
 - 백엔드가 `http://localhost:8080`에 떠 있어야 데이터 화면이 동작한다.
@@ -80,6 +91,7 @@ src/
 - **거래를 변경하면 `['stats']`와 `['budgets']`도 함께 무효화한다.** 놓치면 대시보드 합계가 갱신되지 않는다.
 - **애니메이션 import 는 `motion/react`에서 한다.** `framer-motion`은 deprecated 별칭이다.
 - **차트는 `src/components/chart/` 밖으로 나가지 않는다.** 화면에서 SVG 를 직접 그리지 않는다.
+- **`npm run build` 를 dev 서버가 떠 있는 상태로 돌리지 않는다.** 같은 `.next` 를 동시에 써서 한쪽이 깨진다 (위 「실행」 참조).
 - **`dangerouslySetInnerHTML`을 쓰지 않는다.** 이 앱에 HTML 을 렌더할 이유가 없다.
 - **`category.color`는 인라인 스타일에 넣기 전 `#RRGGBB` 정규식으로 검증한다.**
 - **`any` 금지.** 불가피하면 `unknown` + 타입 가드.
