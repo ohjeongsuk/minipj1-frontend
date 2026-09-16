@@ -1,5 +1,3 @@
-@AGENTS.md
-
 # minipj1-frontend
 
 머니로그(MoneyLog) 프론트엔드. Next.js (App Router) + React 19 + TypeScript 5 + Tailwind CSS 4.
@@ -25,11 +23,19 @@ npm run lint
 - **shadcn 컴포넌트 추가 시 `--legacy-peer-deps`를 쓴다.** React 19 + Tailwind 4 조합에서 peer dependency 충돌이 난다.
 - 백엔드가 `http://localhost:8080`에 떠 있어야 데이터 화면이 동작한다.
 
-### ⚠️ 버전 상태 (미해결)
+### ⚠️ 버전 고정 (16으로 올리지 않는다)
 
-**부모 문서 §3은 Next.js 15를 요구하지만 현재 `next@16.3.5`가 설치되어 있다.**
-근거는 AWS Amplify Hosting compute의 SSR 지원 범위가 12~15라는 점이다. Phase 7에서 정리한다.
-그때까지 **`npm install next@latest`나 의존성 일괄 업데이트를 돌리지 않는다.**
+**`next`와 `eslint-config-next`는 `15.5.25`로 정확히 핀되어 있다.**
+AWS Amplify Hosting compute 의 SSR 지원 범위가 Next.js 12~15이므로,
+16으로 올리면 나중에 배포를 결정했을 때 되돌리는 작업이 생긴다.
+**`npm install next@latest`나 의존성 일괄 업데이트를 돌리지 않는다.**
+
+**`npm audit fix --force`를 쓰지 않는다.** next 15 가 끌고 오는 postcss 취약점을
+해소하겠다며 next 를 16으로 되돌려 버린다.
+
+**`eslint.config.mjs`를 16 문법으로 되돌리지 않는다.**
+15의 `eslint-config-next`는 플랫 설정을 내보내지 않아 `FlatCompat` 으로 감싸야 한다.
+`eslint-config-next/core-web-vitals` 를 배열처럼 스프레드하면 `npm run lint` 가 깨진다.
 
 **`package.json`의 `typescript` 캐럿 범위를 `^5`에서 넓히지 않는다.**
 TypeScript 7은 프로그래밍 방식 JS API가 빠져 있어 `npm run lint`와 `next build` 타입체크가 모두 실패한다.
