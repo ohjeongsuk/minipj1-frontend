@@ -1,3 +1,5 @@
+import { safeColor } from "@/lib/color";
+
 /**
  * 차트 공통 데이터 형태.
  *
@@ -38,8 +40,5 @@ export const CHART_PALETTE = [
  * ⚠️ #RRGGBB 형식을 검증한다. 검증 없이 인라인 스타일에 넣으면 CSS 값 주입 경로가 된다.
  */
 export function resolveColor(color: string | undefined, index: number): string {
-  if (color && /^#[0-9A-Fa-f]{6}$/.test(color)) {
-    return color;
-  }
-  return CHART_PALETTE[index % CHART_PALETTE.length];
+  return safeColor(color, CHART_PALETTE[index % CHART_PALETTE.length]);
 }
