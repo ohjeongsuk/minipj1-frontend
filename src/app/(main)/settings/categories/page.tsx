@@ -104,7 +104,7 @@ export default function CategoriesPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-semibold">카테고리 관리</h1>
 
       <Tabs value={tab} onValueChange={(next) => setTab(next as TransactionType)}>
@@ -114,7 +114,7 @@ export default function CategoriesPage() {
         </TabsList>
 
         {(["EXPENSE", "INCOME"] as const).map((value) => (
-          <TabsContent key={value} value={value} className="flex flex-col gap-4">
+          <TabsContent key={value} value={value} className="flex flex-col gap-6">
             <ul className={HAIRLINE_LIST}>
               {visible.map((category) => (
                 <li key={category.id} className={`p-3 ${HAIRLINE_ITEM}`}>

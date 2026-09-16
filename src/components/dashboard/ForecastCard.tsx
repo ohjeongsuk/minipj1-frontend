@@ -44,12 +44,15 @@ export function ForecastCard({ forecast, isPastMonth }: ForecastCardProps) {
         <TrendingUp className="size-4" aria-hidden />
         이번 달 예상 지출
       </span>
-      <p className="text-item">
-        이번 달 이 속도면{" "}
-        <strong className="text-2xl font-semibold tabular-nums text-expense">
-          {formatAmount(forecast.projectedExpense)}원
-        </strong>
-        을 쓰게 돼요
+      {/*
+        큰 숫자를 문장 안에 넣지 않는다. 모바일에서 "쓰게 / 돼요" 처럼
+        엉뚱한 곳에서 줄이 끊기고, 숫자가 글자 사이에 묻혀 눈에 덜 띈다.
+        문장은 위에 짧게 두고 숫자는 자기 줄을 갖는다.
+      */}
+      <p className="text-caption text-muted-foreground">이 속도면</p>
+      <p className="flex items-baseline gap-1 text-3xl font-semibold tabular-nums text-expense">
+        {formatAmount(forecast.projectedExpense)}
+        <span className="text-item font-normal text-muted-foreground">원을 쓰게 돼요</span>
       </p>
       <p className="text-caption text-muted-foreground tabular-nums">
         {forecast.daysElapsed}일 경과 · 최근 {forecast.basisMonths}개월 기준 · 일평균{" "}
