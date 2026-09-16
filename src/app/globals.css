@@ -187,6 +187,28 @@
   }
 }
 
+/* ── 모션 감소 ───────────────────────────────────────────────────────
+ *
+ * ⚠️ useReducedMotion 만으로는 부족하다. 그 훅은 Motion(JS)이 그리는 애니메이션만
+ *    끄고, CSS transition 은 건드리지 못한다. 예산 막대의 transition-[width] 가
+ *    거기 해당해서, 훅을 넣어둔 화면에서도 막대만 계속 움직였다.
+ *
+ * 그래서 CSS 쪽은 CSS 로 막는다. JS 애니메이션은 계속 useReducedMotion 이 맡는다.
+ *
+ * ⚠️ 0s 가 아니라 0.01ms 를 쓴다. 0s 로 두면 transitionend/animationend 가
+ *    발생하지 않아 그 이벤트를 기다리는 코드가 영영 멈춘다.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
