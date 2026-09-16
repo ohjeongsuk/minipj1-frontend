@@ -89,7 +89,7 @@ function BudgetsContent() {
 
   if (budgets.isPending) {
     return (
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-6">
         {header}
         <ListSkeleton rows={5} />
       </div>
@@ -99,7 +99,7 @@ function BudgetsContent() {
   if (budgets.error || !budgets.data) {
     const apiError = budgets.error instanceof ApiRequestError ? budgets.error.error : null;
     return (
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-6">
         {header}
         <ErrorState
           message={resolveError(apiError).message}
@@ -111,7 +111,7 @@ function BudgetsContent() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       {header}
 
       {errorMessage ? (
