@@ -1,4 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { HAIRLINE_ITEM, HAIRLINE_LIST } from "@/lib/utils";
 
 /**
  * 로딩 표시는 스피너 대신 스켈레톤을 쓴다.
@@ -6,9 +7,9 @@ import { Skeleton } from "@/components/ui/skeleton";
  */
 export function ListSkeleton({ rows = 5 }: { rows?: number }) {
   return (
-    <div className="flex flex-col gap-2" aria-busy="true" aria-label="불러오는 중">
+    <div className={HAIRLINE_LIST} aria-busy="true" aria-label="불러오는 중">
       {Array.from({ length: rows }, (_, index) => (
-        <div key={index} className="flex items-center gap-3 rounded-xl border border-border p-4">
+        <div key={index} className={`flex items-center gap-3 p-3 ${HAIRLINE_ITEM}`}>
           <Skeleton className="size-9 rounded-full" />
           <div className="flex flex-1 flex-col gap-2">
             <Skeleton className="h-4 w-1/3" />

@@ -9,6 +9,7 @@ import { ListSkeleton } from "@/components/common/ListSkeleton";
 import { TransactionRow } from "@/components/transaction/TransactionRow";
 import { ApiRequestError } from "@/lib/apiClient";
 import { resolveError } from "@/lib/errorMessages";
+import { HAIRLINE_LIST } from "@/lib/utils";
 import type { PageResponse, TransactionResponse } from "@/types/api";
 
 /**
@@ -77,7 +78,7 @@ export function TransactionList({
   }
 
   return (
-    <ul className="flex flex-col gap-2">
+    <ul className={HAIRLINE_LIST}>
       <AnimatePresence initial={false}>
         {data.content.map((transaction, index) => (
           <TransactionRow
