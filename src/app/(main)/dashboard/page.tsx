@@ -62,7 +62,7 @@ function DashboardContent() {
 
   if (stats.isPending) {
     return (
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-6">
         {header}
         <CardSkeleton cards={3} />
       </div>
@@ -72,7 +72,7 @@ function DashboardContent() {
   if (stats.error || !stats.data) {
     const apiError = stats.error instanceof ApiRequestError ? stats.error.error : null;
     return (
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-6">
         {header}
         <ErrorState
           message={resolveError(apiError).message}
@@ -106,13 +106,25 @@ function DashboardContent() {
   }));
 
   const heatmapData = daily.map((d) => ({ date: d.date, value: d.expense }));
-  const trendData: ChartDatum[] = daily.map((d) => ({
-    name: String(Number(d.date.slice(-2))),
-    value: d.expense,
-  }));
+
+  /*
+   * ⚠️ 추이 선에서는 아직 오지 않은 날을 뺀다.
+   *    서버는 그 달 전체(30·31일)를 내려주고 미래 날짜의 지출은 0 이다.
+   *    그대로 그리면 오른쪽 절반이 바닥에 붙어 "이번 달 후반에 지출이 끊겼다" 로 읽힌다.
+   *    아직 오지 않았을 뿐이므로 선을 그리지 않는 것이 맞다.
+   *
+   *    히트맵은 자르지 않는다. 달력 모양이라 빈 칸이 "기록 없음" 으로 자연스럽게 읽히고,
+   *    날짜 칸을 빼면 요일 정렬이 깨진다.
+   */
+  const trendData: ChartDatum[] = daily
+    .filter((d) => d.date <= asOf)
+    .map((d) => ({
+      name: String(Number(d.date.slice(-2))),
+      value: d.expense,
+    }));
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       {header}
 
       <SummaryCards summary={summary} />
