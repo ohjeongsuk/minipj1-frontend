@@ -1,7 +1,8 @@
 "use client";
 
-import { Search, X } from "lucide-react";
+import { Search, SlidersHorizontal, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { cn } from "cn";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +30,11 @@ export function hasAnyFilter(filters: TransactionFilters): boolean {
   return Object.values(filters).some((value) => value !== "");
 }
 
+/** 접힌 상태에서 "몇 개가 걸려 있는지" 를 버튼에 보여주기 위한 개수 */
+function countActive(filters: TransactionFilters): number {
+  return Object.values(filters).filter((value) => value !== "").length;
+}
+
 const SELECT_CLASS =
   "h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2 py-1 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
 
@@ -46,6 +52,18 @@ export function FilterBar({ filters, categories, onChange }: FilterBarProps) {
    */
   const [keyword, setKeyword] = useState(filters.keyword);
 
+  /*
+   * 모바일에서만 접는다. sm 이상은 필터가 가로 한 줄이라 접을 이유가 없다.
+   *
+   * ⚠️ 접는 이유는 공간이다. 세로로 쌓이면 342px 를 먹어 목록이 첫 화면 밖으로 밀린다.
+   *    이 화면의 본문은 목록이고 필터는 가끔 쓰는 도구다.
+   *
+   * ⚠️ 필터가 걸린 채로 접히면 "왜 목록이 이것뿐이지" 를 설명할 곳이 없어진다.
+   *    그래서 버튼에 적용 개수를 띄우고, 필터가 있으면 처음부터 펼쳐 둔다.
+   */
+  const [open, setOpen] = useState(() => hasAnyFilter(filters));
+  const activeCount = countActive(filters);
+
   // 필터 초기화처럼 밖에서 값이 바뀐 경우를 따라간다
   useEffect(() => {
     setKeyword(filters.keyword);
@@ -56,13 +74,36 @@ export function FilterBar({ filters, categories, onChange }: FilterBarProps) {
   }
 
   return (
-    <form
-      onSubmit={(event) => {
-        event.preventDefault();
-        patch({ keyword });
-      }}
-      className="grid gap-3 rounded-xl border border-border p-4 sm:grid-cols-12"
-    >
+    <div className="flex flex-col gap-2">
+      {/* 데스크톱에서는 필터가 한 줄이라 토글이 필요 없다 */}
+      <Button
+        type="button"
+        variant="outline"
+        className="justify-between sm:hidden"
+        aria-expanded={open}
+        onClick={() => setOpen((prev) => !prev)}
+      >
+        <span className="flex items-center gap-2">
+          <SlidersHorizontal className="size-4" aria-hidden />
+          필터
+        </span>
+        {activeCount > 0 ? (
+          <span className="rounded-full bg-primary px-2 py-0.5 text-caption text-primary-foreground tabular-nums">
+            {activeCount}
+          </span>
+        ) : null}
+      </Button>
+
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          patch({ keyword });
+        }}
+        className={cn(
+          "gap-3 rounded-xl border border-border p-4 sm:grid sm:grid-cols-12",
+          open ? "grid" : "hidden",
+        )}
+      >
       <div className="flex flex-col gap-1.5 sm:col-span-2">
         <Label htmlFor="filter-from">시작일</Label>
         <Input
@@ -139,7 +180,8 @@ export function FilterBar({ filters, categories, onChange }: FilterBarProps) {
             </Button>
           ) : null}
         </div>
-      </div>
-    </form>
+        </div>
+      </form>
+    </div>
   );
 }
