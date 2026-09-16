@@ -200,7 +200,11 @@ export function TransactionForm({
           </div>
         </div>
 
-        {/* 금액 — type="number" 를 쓰지 않는다. 콤마가 들어가는 순간 값이 빈 문자열이 된다 */}
+        {/*
+          금액 — type="number" 를 쓰지 않는다. 콤마가 들어가는 순간 값이 빈 문자열이 된다.
+          표시 자릿수는 2 로 둔다. 입력값을 반올림해 보여주면
+          화면의 숫자와 실제로 저장될 값이 어긋난다.
+        */}
         <div className={cn("flex flex-col gap-1.5", cellClass)}>
           <Label htmlFor={`${layout}-amount`} className={labelClass}>
             금액
@@ -212,7 +216,7 @@ export function TransactionForm({
             autoComplete="off"
             placeholder="0"
             className="text-right tabular-nums"
-            value={formatAmount(amountRaw)}
+            value={formatAmount(amountRaw, 2)}
             onChange={(e) => setAmountRaw(parseAmount(e.target.value))}
           />
         </div>

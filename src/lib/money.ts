@@ -11,7 +11,10 @@
  *    스크롤로 값이 바뀌는 사고가 난다.
  *    type="text" + inputMode="numeric" 을 쓰고, 상태는 콤마 없는 원본 문자열로 든다.
  */
-export function formatAmount(value: number | string | null | undefined): string {
+export function formatAmount(
+  value: number | string | null | undefined,
+  fractionDigits = 0,
+): string {
   if (value === null || value === undefined || value === "") {
     return "";
   }
@@ -19,8 +22,15 @@ export function formatAmount(value: number | string | null | undefined): string 
   if (!Number.isFinite(numeric)) {
     return "";
   }
-  // 소수부가 있으면 최대 2자리까지 보여준다. 원 단위 금액은 정수로 떨어진다
-  return numeric.toLocaleString("ko-KR", { maximumFractionDigits: 2 });
+  /*
+   * 표시는 원 단위 정수로 한다. 화면에 2,048,242.84원 처럼 소수점이 보이면
+   * 가계부에서 읽히지 않는다. 반올림이며 저장값은 건드리지 않는다 —
+   * 서버는 NUMERIC(15,2) 로 소수부를 그대로 보관한다.
+   *
+   * ⚠️ 입력 필드는 fractionDigits: 2 로 부른다.
+   *    입력값을 표시할 때 반올림해 버리면 화면의 숫자와 실제로 저장될 값이 어긋난다.
+   */
+  return numeric.toLocaleString("ko-KR", { maximumFractionDigits: fractionDigits });
 }
 
 /**
