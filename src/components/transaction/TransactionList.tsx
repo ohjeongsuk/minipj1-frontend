@@ -1,6 +1,7 @@
 "use client";
 
 import { Inbox, SearchX } from "lucide-react";
+import { AnimatePresence } from "motion/react";
 
 import { EmptyState } from "@/components/common/EmptyState";
 import { ErrorState } from "@/components/common/ErrorState";
@@ -15,6 +16,10 @@ import type { PageResponse, TransactionResponse } from "@/types/api";
  *
  * ⚠️ "아직 기록이 없어요"와 "조건에 맞는 내역이 없어요"를 구분한다.
  *    같은 문구를 쓰면 사용자가 필터를 걸어둔 사실을 알아채지 못한다 (UX-02 · UX-03).
+ *
+ * 삭제는 낙관적 업데이트라 캐시에서 먼저 빠진다. AnimatePresence 로 감싸야
+ * 사라지는 행이 한 프레임 만에 없어지지 않고 exit 애니메이션을 마칠 수 있다.
+ * initial={false} 를 주어 첫 렌더에서 목록 전체가 다시 등장하지 않게 한다.
  */
 interface TransactionListProps {
   data: PageResponse<TransactionResponse> | undefined;
@@ -73,9 +78,16 @@ export function TransactionList({
 
   return (
     <ul className="flex flex-col gap-2">
-      {data.content.map((transaction) => (
-        <TransactionRow key={transaction.id} transaction={transaction} onDelete={onDelete} />
-      ))}
+      <AnimatePresence initial={false}>
+        {data.content.map((transaction, index) => (
+          <TransactionRow
+            key={transaction.id}
+            transaction={transaction}
+            index={index}
+            onDelete={onDelete}
+          />
+        ))}
+      </AnimatePresence>
     </ul>
   );
 }

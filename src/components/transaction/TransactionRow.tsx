@@ -1,6 +1,7 @@
 "use client";
 
 import { Trash2 } from "lucide-react";
+import { motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { cn } from "cn";
 
@@ -18,17 +19,33 @@ import type { TransactionResponse } from "@/types/api";
  *
  * ⚠️ 색 위에 글자를 올리지 않고 색 옆에 점으로 둔다.
  *    사용자가 지정한 색이라 대비를 계산할 수 없어 다크 모드에서 읽히지 않을 수 있다.
+ *
+ * ⚠️ prefers-reduced-motion 일 때도 motion.li 를 그대로 쓰고 지속 시간만 0 으로 만든다.
+ *    조건부로 일반 li 와 바꾸면 컴포넌트가 재마운트되어 오히려 화면이 튄다.
  */
 interface TransactionRowProps {
   transaction: TransactionResponse;
+  /** 등장 stagger 계산용 */
+  index: number;
   onDelete: (id: number) => void;
 }
 
-export function TransactionRow({ transaction, onDelete }: TransactionRowProps) {
+const STAGGER_SECONDS = 0.03;
+
+export function TransactionRow({ transaction, index, onDelete }: TransactionRowProps) {
   const { id, type, amount, txnDate, merchant, category } = transaction;
+  const reduce = useReducedMotion();
+  const duration = reduce ? 0 : 0.18;
 
   return (
-    <li className="flex items-center gap-3 rounded-xl border border-border p-3">
+    <motion.li
+      layout={!reduce}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, height: 0, paddingTop: 0, paddingBottom: 0 }}
+      transition={{ duration, delay: reduce ? 0 : index * STAGGER_SECONDS }}
+      className="flex items-center gap-3 overflow-hidden rounded-xl border border-border p-3"
+    >
       {/* 삭제 버튼을 링크 안에 넣을 수 없으므로 본문만 링크로 감싼다 */}
       <Link
         href={`/transactions/${id}`}
@@ -45,9 +62,7 @@ export function TransactionRow({ transaction, onDelete }: TransactionRowProps) {
             style={{ background: safeColor(category.color, "#737373") }}
           />
           {category.name}
-          {category.deleted ? (
-            <span className="text-muted-foreground">(삭제됨)</span>
-          ) : null}
+          {category.deleted ? <span className="text-muted-foreground">(삭제됨)</span> : null}
         </span>
 
         <span className="truncate text-body">{merchant || "—"}</span>
@@ -70,6 +85,6 @@ export function TransactionRow({ transaction, onDelete }: TransactionRowProps) {
       >
         <Trash2 className="size-4" aria-hidden />
       </Button>
-    </li>
+    </motion.li>
   );
 }
