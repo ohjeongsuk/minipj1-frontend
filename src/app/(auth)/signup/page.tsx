@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { GoogleButton } from "@/components/auth/GoogleButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -134,6 +135,15 @@ export default function SignupPage() {
       <Button type="submit" disabled={!canSubmit || signup.isPending} className="mt-2">
         {signup.isPending ? "가입 중…" : "회원가입"}
       </Button>
+
+
+      {/* 구글 로그인 (AUTH-09). 백엔드 주도 리다이렉트라 폼 바깥에 둔다 */}
+      <div className="flex items-center gap-3">
+        <span className="h-px flex-1 bg-border" />
+        <span className="text-caption text-muted-foreground">또는</span>
+        <span className="h-px flex-1 bg-border" />
+      </div>
+      <GoogleButton label="Google로 가입" />
 
       <p className="text-center text-caption text-muted-foreground">
         이미 계정이 있나요?{" "}

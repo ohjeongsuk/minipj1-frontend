@@ -19,6 +19,13 @@ const FALLBACK_MESSAGE = "일시적인 오류가 발생했습니다. 다시 시�
 
 const TABLE: Record<string, ResolvedError> = {
   EMAIL_DUPLICATED: { message: "이미 사용 중인 이메일입니다.", display: "inline" },
+  // 구글 로그인인데 같은 이메일의 로컬 계정이 이미 있다. 자동 연동하지 않는다 (AUTH-09)
+  EMAIL_CONFLICT: {
+    message: "이미 이메일로 가입된 계정입니다. 비밀번호로 로그인해 주세요.",
+    display: "inline",
+  },
+  OAUTH2_FAILED: { message: "구글 로그인에 실패했습니다. 다시 시도해 주세요.", display: "inline" },
+  invalid_profile: { message: "구글 계정에서 이메일을 가져오지 못했습니다.", display: "inline" },
   CATEGORY_DUPLICATED: { message: "같은 이름의 카테고리가 이미 있습니다.", display: "inline" },
   CATEGORY_TYPE_MISMATCH: { message: "수입/지출 구분이 카테고리와 맞지 않습니다.", display: "inline" },
   TRANSACTION_NOT_FOUND: { message: "거래 내역을 찾을 수 없습니다.", display: "fullscreen" },
