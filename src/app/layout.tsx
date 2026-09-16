@@ -16,6 +16,23 @@ const pretendard = localFont({
   display: "swap",
 });
 
+/*
+ * 테마를 첫 페인트 전에 확정한다.
+ *
+ * 저장된 선택이 없으면 아무것도 하지 않는다 — 그 상태가 곧 "시스템 모드" 이고
+ * globals.css 의 prefers-color-scheme 미디어쿼리가 CSS 만으로 처리한다.
+ * 즉 대다수 사용자에게는 이 스크립트가 아무 일도 하지 않는다.
+ *
+ * ⚠️ useEffect 로 옮기면 hydration 이후에 실행돼 한 프레임 깜빡인다(FOUC).
+ *    localStorage 는 서버가 읽을 수 없으므로 동기 인라인 스크립트가 유일한 방법이다.
+ *
+ * ⚠️ dangerouslySetInnerHTML 을 쓰지 않는다(CLAUDE.md 6장).
+ *    React 19 는 <script> 의 문자열 자식을 스크립트 본문으로 렌더한다.
+ *
+ * ⚠️ try/catch 로 감싼다. 사생활 보호 모드에서는 localStorage 접근 자체가 던진다.
+ */
+const THEME_SCRIPT = `try{var t=localStorage.getItem("moneylog_theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}`;
+
 export const metadata: Metadata = {
   title: "머니로그",
   description: "3초 안에 기록하고, 이번 달 지출을 예측하는 스마트 가계부",
@@ -31,7 +48,10 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="ko" className={pretendard.variable}>
+    <html lang="ko" className={pretendard.variable} suppressHydrationWarning>
+      <head>
+        <script>{THEME_SCRIPT}</script>
+      </head>
       <body className="antialiased">
         <Providers>{children}</Providers>
       </body>
