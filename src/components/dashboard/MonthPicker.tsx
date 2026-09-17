@@ -36,7 +36,8 @@ export function MonthPicker({ yearMonth, onChange, allowFuture = false }: MonthP
         <ChevronLeft className="size-4" aria-hidden />
       </Button>
 
-      <h1 className="min-w-36 text-center text-2xl font-semibold tabular-nums">
+      {/* 조회 대상 월은 내비게이션이지 데이터가 아니다. 잔액보다 작게 둔다 */}
+      <h1 className="min-w-32 text-center text-xl font-semibold tabular-nums sm:min-w-36 sm:text-2xl">
         {formatMonthLabel(yearMonth)}
       </h1>
 

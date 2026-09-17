@@ -14,7 +14,16 @@ import { cn } from "@/lib/utils";
  *    모바일 폭이 38px 이라 정사각형으로 두면 글자가 들어갈 자리가 없다.
  *    가로는 요일 7칸에 묶여 있으니 세로로만 늘린다.
  *
- * ⚠️ 모바일에서는 칸 간격과 안쪽 여백도 줄인다. 데스크톱 값 그대로 두면
+ * ⚠️ 확대(간격·여백·글자)를 sm 이 아니라 lg 에서 켠다. 대시보드가 sm 에서
+ *    카드를 2열로 나누므로, sm 이 되는 순간 이 카드는 오히려 좁아진다
+ *    (390px 전체 폭 → 640px 에서 반쪽 290px). sm 에 걸어 두면 390px 에서
+ *    멀쩡하던 칸이 640px 에서 잘린다.
+ *
+ * ⚠️ 좁은 화면에서는 칸 안쪽 여백을 0 으로 둔다. 320px 에서 칸 하나가
+ *    33px 뿐이라 2px 씩만 줘도 "10.7만"(30px) 이 들어가지 못한다.
+ *    글자가 테두리에 닿지만, 칸이 이 정도로 작으면 여백보다 값이 먼저다.
+ *
+ * ⚠️ 좁은 화면에서는 칸 간격도 줄인다. 데스크톱 값 그대로 두면
  *    안쪽이 25px 뿐이라 "10.7만"(30px) 이 잘린다. 요일 머리글의 간격도
  *    함께 줄여야 열이 어긋나지 않는다.
  *
@@ -50,7 +59,7 @@ function level(ratio: number): number {
 }
 
 /** 금액 줄은 일자보다 한 단계 작다. 일곱 칸에 묶여 있어 폭을 늘릴 수 없다 */
-const AMOUNT = "truncate text-[0.625rem] sm:text-[0.6875rem]";
+const AMOUNT = "truncate text-[0.625rem] lg:text-[0.6875rem]";
 
 /**
  * 글자가 읽히는 범위까지만 칠한다.
@@ -86,12 +95,12 @@ export function MonthHeatmap({ data, hrefFor }: MonthHeatmapProps) {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="grid grid-cols-7 gap-0.5 text-center text-caption text-muted-foreground sm:gap-1">
+      <div className="grid grid-cols-7 gap-0.5 text-center text-caption text-muted-foreground lg:gap-1">
         {WEEKDAYS.map((day) => (
           <span key={day}>{day}</span>
         ))}
       </div>
-      <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
+      <div className="grid grid-cols-7 gap-0.5 lg:gap-1">
         {Array.from({ length: firstWeekday }, (_, i) => (
           <span key={`pad-${i}`} aria-hidden />
         ))}
@@ -110,7 +119,7 @@ export function MonthHeatmap({ data, hrefFor }: MonthHeatmapProps) {
               aria-label={`${month}월 ${day}일 내역 보기. 수입 ${formatAmount(datum.income)}원, 지출 ${formatAmount(datum.expense)}원`}
               title={`${datum.date}\n수입 ${formatAmount(datum.income)}원\n지출 ${formatAmount(datum.expense)}원`}
               className={cn(
-                "flex min-h-[4.5rem] flex-col gap-0.5 rounded-md border border-border px-0.5 py-1 sm:px-1",
+                "flex min-h-[4.5rem] flex-col gap-0.5 rounded-md border border-border px-0 py-1 lg:px-1",
                 "leading-tight tabular-nums",
                 "transition-colors hover:border-primary focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
               )}
@@ -119,7 +128,7 @@ export function MonthHeatmap({ data, hrefFor }: MonthHeatmapProps) {
                   opacity > 0 ? `color-mix(in srgb, var(--color-expense) ${opacity * 100}%, transparent)` : undefined,
               }}
             >
-              <span className="text-[0.625rem] text-muted-foreground sm:text-caption">{day}</span>
+              <span className="text-[0.625rem] text-muted-foreground lg:text-caption">{day}</span>
               {/* 앱의 다른 화면과 같은 순서로 둔다 — 총수입 다음 총지출 */}
               <span className={cn(AMOUNT, datum.income > 0 ? "text-income" : "text-muted-foreground")}>
                 {short(datum.income)}
