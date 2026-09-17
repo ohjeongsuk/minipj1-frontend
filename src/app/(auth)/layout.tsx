@@ -33,7 +33,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="flex min-h-dvh items-center justify-center px-4 py-10">
       <div className="w-full max-w-sm">
-        <h1 className="mb-1 text-center text-2xl font-semibold">머니로그</h1>
+        <h1 className="mb-1 text-center text-2xl font-semibold">
+          잔고 <span className="text-muted-foreground">Zango</span>
+        </h1>
         <p className="mb-8 text-center text-caption text-muted-foreground">
           3초 안에 기록하고, 이번 달 지출을 예측합니다
         </p>
