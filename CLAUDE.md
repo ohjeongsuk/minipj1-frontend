@@ -63,7 +63,7 @@ src/
 ├── components/
 │   ├── ui/          shadcn/ui
 │   ├── common/      Pagination, EmptyState, ErrorState, Skeleton
-│   ├── chart/       CategoryDonut, TrendLine, BudgetBar, MonthHeatmap
+│   ├── chart/       DailyTrendChart(선·막대·누적), CategoryDonut, BudgetBar, MonthHeatmap
 │   └── transaction/ TransactionList, TransactionRow, QuickAddBar, TransactionForm
 ├── hooks/           useTransactions, useStats, useAuth
 ├── lib/             apiClient, queryClient, money, date, utils
@@ -91,6 +91,11 @@ src/
 - **거래를 변경하면 `['stats']`와 `['budgets']`도 함께 무효화한다.** 놓치면 대시보드 합계가 갱신되지 않는다.
 - **애니메이션 import 는 `motion/react`에서 한다.** `framer-motion`은 deprecated 별칭이다.
 - **차트는 `src/components/chart/` 밖으로 나가지 않는다.** 화면에서 SVG 를 직접 그리지 않는다.
+- **차트 SVG 를 직접 `absolute` 로 띄우거나 높이가 확정되지 않은 부모에 두지 않는다.**
+  `<svg>` 는 대체 요소라 `viewBox` 의 비율로 제 크기를 정한다. 흐름 안에 두면 `height:100%` 가
+  내재 크기 계산 단계에서 풀리지 않아 카드를 정사각형만큼 밀어내고, `absolute` 로 띄우면
+  `top`/`bottom` 을 줘도 늘어나지 않아 선이 격자선과 어긋난다.
+  **위치는 감싸는 `div` 가 잡고 SVG 는 그 안에서 `size-full` 로 채운다.**
 - **`npm run build` 를 dev 서버가 떠 있는 상태로 돌리지 않는다.** 같은 `.next` 를 동시에 써서 한쪽이 깨진다 (위 「실행」 참조).
 - **`dangerouslySetInnerHTML`을 쓰지 않는다.** 이 앱에 HTML 을 렌더할 이유가 없다.
 - **`category.color`는 인라인 스타일에 넣기 전 `#RRGGBB` 정규식으로 검증한다.**
