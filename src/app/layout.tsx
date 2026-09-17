@@ -34,7 +34,7 @@ const pretendard = localFont({
 const THEME_SCRIPT = `try{var t=localStorage.getItem("moneylog_theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}`;
 
 export const metadata: Metadata = {
-  title: "머니로그",
+  title: "잔고 Zango",
   description: "3초 안에 기록하고, 이번 달 지출을 예측하는 스마트 가계부",
 };
 

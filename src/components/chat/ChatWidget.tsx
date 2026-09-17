@@ -65,7 +65,7 @@ export function ChatWidget({ userId }: ChatWidgetProps) {
       {open ? (
         <div
           role="dialog"
-          aria-label="머니로그 도우미"
+          aria-label="잔고 도우미"
           className="animate-in fade-in-0 slide-in-from-bottom-2 fixed inset-x-4 top-20 bottom-36 z-50 flex flex-col overflow-hidden rounded-xl border border-border bg-background shadow-md duration-150 sm:inset-x-auto sm:top-auto sm:right-6 sm:bottom-24 sm:h-[560px] sm:w-[380px]"
         >
           <header className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3">
@@ -78,7 +78,7 @@ export function ChatWidget({ userId }: ChatWidgetProps) {
               </span>
               <div>
                 <p className="text-item font-semibold leading-tight">
-                  머니로그 도우미
+                  잔고 도우미
                 </p>
                 <p className="text-caption leading-tight text-muted-foreground">
                   조회 전용

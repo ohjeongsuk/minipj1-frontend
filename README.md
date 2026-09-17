@@ -1,6 +1,6 @@
 # minipj1-frontend
 
-머니로그(MoneyLog) 프론트엔드. **Next.js 15 (App Router) + React 19 + TypeScript 5 + Tailwind CSS 4**.
+잔고(Zango) 프론트엔드. **Next.js 15 (App Router) + React 19 + TypeScript 5 + Tailwind CSS 4**.
 
 > 전체 스펙의 정본은 문서 저장소 `mini-project/CLAUDE.md` 다.
 > 이 저장소 전용 규칙은 `CLAUDE.md`(같은 폴더)에 있다.
