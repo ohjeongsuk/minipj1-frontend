@@ -21,7 +21,7 @@ import { ApiRequestError } from "@/lib/apiClient";
 import { currentMonth, today } from "@/lib/date";
 import { resolveError } from "@/lib/errorMessages";
 import { distributePercent } from "@/lib/percent";
-import { SECTION_CARD } from "@/lib/utils";
+import { cn, SECTION_CARD } from "@/lib/utils";
 
 /**
  * ⚠️ useSearchParams 를 쓰므로 <Suspense> 로 감싼다.
@@ -138,7 +138,16 @@ function DashboardContent() {
            빈 달력과 "기록이 없어요" 를 함께 띄우면 같은 말을 두 번 하게 된다.
       */}
       {isEmptyMonth ? null : (
-        <section className={SECTION_CARD}>
+        /*
+         * ⚠️ 이 카드만 모바일에서 안쪽 여백을 줄인다(p-5 → p-3).
+         *    7 열 달력이라 칸 폭이 카드 여백에 그대로 깎이는데, 390px 에서
+         *    좌우 20px 씩 40px 를 돌려받으면 칸이 41.3px → 47px 가 된다.
+         *    그 5.7px 가 금액 글자 한 단계를 좌우한다.
+         *
+         *    다른 카드는 SECTION_CARD 그대로 둔다. 여백이 좁아서 득을 보는 것은
+         *    폭을 7 로 나눠 쓰는 이 카드뿐이고, 공통 상수를 건드리면 전부 따라온다.
+         */
+        <section className={cn(SECTION_CARD, "p-3 sm:p-5")}>
           <h2 className="text-caption text-muted-foreground">일별 수입·지출</h2>
           <MonthHeatmap data={heatmapData} hrefFor={dayHref} />
         </section>
