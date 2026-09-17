@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import { ChatWidget } from "@/components/chat/ChatWidget";
+import { AdSlot } from "@/components/common/AdSlot";
 import { AppHeader } from "@/components/common/AppHeader";
 import { CardSkeleton } from "@/components/common/ListSkeleton";
 import { useAuth } from "@/hooks/useAuth";
@@ -42,6 +43,9 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       {/* 모바일은 하단 탭 바에 가리지 않도록 아래 여백을 크게 준다 */}
       {/* 하단 탭 바가 md 까지 떠 있으므로 본문 아래 여백도 md 에서 푼다 */}
       <main className="mx-auto max-w-5xl px-4 pt-6 pb-24 sm:px-6 md:pb-10">{children}</main>
+      {/* 본문 양옆 여백. 1400px 미만에서는 자리가 없어 렌더하지 않는다 */}
+      <AdSlot side="left" />
+      <AdSlot side="right" />
       {/* 어느 화면에서나 떠 있다. me 가 아직 없으면 이력 키를 만들 수 없으므로 기다린다 */}
       {me ? <ChatWidget userId={me.id} /> : null}
     </div>
