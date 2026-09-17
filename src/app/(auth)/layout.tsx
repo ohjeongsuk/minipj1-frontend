@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { Logo } from "@/components/common/Logo";
 import { getToken, isTokenExpired } from "@/lib/apiClient";
 
 /**
@@ -33,7 +34,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="flex min-h-dvh items-center justify-center px-4 py-10">
       <div className="w-full max-w-sm">
-        <h1 className="mb-1 text-center text-2xl font-semibold">
+        <h1 className="mb-1 flex items-center justify-center gap-2 text-2xl font-semibold">
+          <Logo size={34} />
           잔고 <span className="text-muted-foreground">Zango</span>
         </h1>
         <p className="mb-8 text-center text-caption text-muted-foreground">
