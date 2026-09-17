@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { useLogin } from "@/hooks/useAuth";
 import { ApiRequestError } from "@/lib/apiClient";
 import { resolveError } from "@/lib/errorMessages";
+import { INLINE_ERROR } from "@/lib/utils";
 
 /**
  * 로그인 (AUTH-04).
@@ -43,7 +44,7 @@ export default function LoginPage() {
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
       {formError ? (
         // 폼 상단 인라인. role=alert 라 스크린리더가 즉시 읽는다
-        <p role="alert" className="rounded-lg border border-destructive/40 px-3 py-2 text-caption text-destructive">
+        <p role="alert" className={INLINE_ERROR}>
           {formError}
         </p>
       ) : null}

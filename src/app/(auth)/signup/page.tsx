@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { useSignup } from "@/hooks/useAuth";
 import { ApiRequestError } from "@/lib/apiClient";
 import { resolveError } from "@/lib/errorMessages";
+import { INLINE_ERROR } from "@/lib/utils";
 
 /**
  * 회원가입 (AUTH-01 ~ AUTH-03, AUTH-05).
@@ -71,7 +72,7 @@ export default function SignupPage() {
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
       {formError ? (
-        <p role="alert" className="rounded-lg border border-destructive/40 px-3 py-2 text-caption text-destructive">
+        <p role="alert" className={INLINE_ERROR}>
           {formError}
         </p>
       ) : null}

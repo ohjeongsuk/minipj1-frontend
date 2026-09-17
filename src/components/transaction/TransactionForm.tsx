@@ -11,6 +11,7 @@ import { safeColor } from "@/lib/color";
 import { today } from "@/lib/date";
 import { formatAmount, parseAmount } from "@/lib/money";
 import type { CategoryResponse, TransactionResponse, TransactionType } from "@/types/api";
+import { INLINE_ERROR } from "@/lib/utils";
 
 /**
  * 거래 입력 폼 본체. 퀵 입력 바와 상세 화면이 공유한다.
@@ -163,7 +164,7 @@ export function TransactionForm({
       {errorMessage || localError ? (
         <p
           role="alert"
-          className="rounded-lg border border-destructive/40 px-3 py-2 text-caption text-destructive"
+          className={INLINE_ERROR}
         >
           {errorMessage || localError}
         </p>

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { CategoryResponse, TransactionType } from "@/types/api";
+import { INLINE_ERROR } from "@/lib/utils";
 
 /**
  * 카테고리 추가·수정 공용 폼.
@@ -78,7 +79,7 @@ export function CategoryForm({
       {errorMessage || localError ? (
         <p
           role="alert"
-          className="rounded-lg border border-destructive/40 px-3 py-2 text-caption text-destructive"
+          className={INLINE_ERROR}
         >
           {errorMessage || localError}
         </p>
