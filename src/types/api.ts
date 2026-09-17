@@ -158,6 +158,9 @@ export type ChatIntent =
   | "CATEGORY_AMOUNT"
   | "RECENT_TRANSACTIONS"
   | "BUDGET_STATUS"
+  | "FORECAST"
+  | "RECURRING"
+  | "DAILY_AMOUNT"
   | "UNKNOWN";
 
 /**
