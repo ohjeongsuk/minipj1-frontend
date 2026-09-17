@@ -176,12 +176,13 @@ export function TransactionForm({
         {/* 구분 — 라디오라 방향키로 바꿀 수 있고 Enter 는 폼 제출로 흘러간다 */}
         <div className={cn("flex flex-col gap-1.5", cellClass)}>
           <span className={cn("text-sm leading-none font-medium", labelClass)}>구분</span>
-          <div className="flex h-8 items-center gap-1 rounded-lg border border-input p-0.5">
+          {/* 선택된 칸이 테두리까지 꽉 차야 해서 안쪽 여백·간격을 두지 않는다. 모서리는 부모가 잘라낸다 */}
+          <div className="flex h-8 overflow-hidden rounded-lg border border-input">
             {(["EXPENSE", "INCOME"] as const).map((value) => (
               <label
                 key={value}
                 className={cn(
-                  "flex-1 cursor-pointer rounded-md px-2 py-1 text-center text-caption transition-colors",
+                  "flex flex-1 cursor-pointer items-center justify-center px-2 text-caption transition-colors",
                   type === value && value === "INCOME" && "bg-income/15 font-semibold text-income",
                   type === value && value === "EXPENSE" && "bg-expense/15 font-semibold text-expense",
                   type !== value && "text-muted-foreground",
