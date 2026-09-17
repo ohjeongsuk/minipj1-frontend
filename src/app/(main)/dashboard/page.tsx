@@ -22,6 +22,7 @@ import { ApiRequestError } from "@/lib/apiClient";
 import { currentMonth, today } from "@/lib/date";
 import { resolveError } from "@/lib/errorMessages";
 import { distributePercent } from "@/lib/percent";
+import { SECTION_CARD } from "@/lib/utils";
 
 /**
  * ⚠️ useSearchParams 를 쓰므로 <Suspense> 로 감싼다.
@@ -144,12 +145,12 @@ function DashboardContent() {
         />
       ) : (
         <div className="grid gap-3 sm:grid-cols-2">
-          <section className="flex flex-col gap-3 rounded-xl border border-border p-5">
+          <section className={SECTION_CARD}>
             <h2 className="text-caption text-muted-foreground">카테고리별 지출</h2>
             <CategoryDonut data={donutData} total={summary.expense} percents={percents} />
           </section>
 
-          <section className="flex flex-col gap-3 rounded-xl border border-border p-5">
+          <section className={SECTION_CARD}>
             <h2 className="text-caption text-muted-foreground">예산 소진율</h2>
             {budgetData.length === 0 ? (
               <p className="text-caption text-muted-foreground">
@@ -160,12 +161,12 @@ function DashboardContent() {
             )}
           </section>
 
-          <section className="flex flex-col gap-3 rounded-xl border border-border p-5">
+          <section className={SECTION_CARD}>
             <h2 className="text-caption text-muted-foreground">일별 지출</h2>
             <MonthHeatmap data={heatmapData} />
           </section>
 
-          <section className="flex flex-col gap-3 rounded-xl border border-border p-5">
+          <section className={SECTION_CARD}>
             <h2 className="text-caption text-muted-foreground">일별 지출 추이</h2>
             <TrendLine data={trendData} label="일별 지출 추이" />
           </section>

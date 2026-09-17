@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
+import { ChatWidget } from "@/components/chat/ChatWidget";
 import { AppHeader } from "@/components/common/AppHeader";
 import { CardSkeleton } from "@/components/common/ListSkeleton";
 import { useAuth } from "@/hooks/useAuth";
@@ -40,6 +41,8 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       <AppHeader nickname={me?.nickname ?? ""} onLogout={logout} />
       {/* 모바일은 하단 탭 바에 가리지 않도록 아래 여백을 크게 준다 */}
       <main className="mx-auto max-w-5xl px-4 pt-6 pb-24 sm:px-6 sm:pb-10">{children}</main>
+      {/* 어느 화면에서나 떠 있다. me 가 아직 없으면 이력 키를 만들 수 없으므로 기다린다 */}
+      {me ? <ChatWidget userId={me.id} /> : null}
     </div>
   );
 }

@@ -17,3 +17,22 @@ export { cn } from "cn"
  */
 export const HAIRLINE_LIST = "overflow-hidden rounded-xl border border-border bg-card"
 export const HAIRLINE_ITEM = "border-t border-border first:border-t-0"
+
+/**
+ * 대시보드·데이터 화면의 구획 카드.
+ *
+ * 여덟 곳이 같은 문자열을 각자 들고 있었다. 한 곳만 고치면 패딩이나 라운드가
+ * 화면마다 달라지는데, 그 차이는 두 화면을 나란히 놓기 전에는 눈에 띄지 않는다.
+ * 스켈레톤(ListSkeleton)도 같은 값을 써야 로딩 중과 로딩 후의 높이가 맞는다.
+ */
+export const SECTION_CARD = "flex flex-col gap-3 rounded-xl border border-border p-5"
+
+/**
+ * 폼 위에 뜨는 인라인 에러 상자.
+ *
+ * 로그인·가입·예산·CSV·카테고리·거래 여섯 화면이 같은 모양을 쓴다.
+ * 테두리를 destructive/40 으로 흐리게 두는 것이 핵심이라 값이 갈리면
+ * 어떤 화면은 빨간 테두리가 진하고 어떤 화면은 연해진다.
+ */
+export const INLINE_ERROR =
+  "rounded-lg border border-destructive/40 px-3 py-2 text-caption text-destructive"

@@ -12,6 +12,7 @@ import { ApiRequestError } from "@/lib/apiClient";
 import { currentMonth, monthRange } from "@/lib/date";
 import { resolveError } from "@/lib/errorMessages";
 import type { ImportResultResponse } from "@/types/api";
+import { INLINE_ERROR, SECTION_CARD } from "@/lib/utils";
 
 /** 내보내기·가져오기가 같은 형식을 쓴다는 것을 화면에서 바로 보여준다 */
 const FORMAT_COLUMNS = [
@@ -70,7 +71,7 @@ export default function DataPage() {
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-semibold">데이터</h1>
 
-      <section className="flex flex-col gap-3 rounded-xl border border-border p-5">
+      <section className={SECTION_CARD}>
         <h2 className="flex items-center gap-1.5 text-item font-semibold">
           <Download className="size-4" aria-hidden />
           내보내기
@@ -102,7 +103,7 @@ export default function DataPage() {
         </div>
       </section>
 
-      <section className="flex flex-col gap-3 rounded-xl border border-border p-5">
+      <section className={SECTION_CARD}>
         <h2 className="flex items-center gap-1.5 text-item font-semibold">
           <Upload className="size-4" aria-hidden />
           가져오기
@@ -128,7 +129,7 @@ export default function DataPage() {
         {importError ? (
           <p
             role="alert"
-            className="rounded-lg border border-destructive/40 px-3 py-2 text-caption text-destructive"
+            className={INLINE_ERROR}
           >
             {importError}
           </p>
@@ -162,7 +163,7 @@ export default function DataPage() {
         ) : null}
       </section>
 
-      <section className="flex flex-col gap-3 rounded-xl border border-border p-5">
+      <section className={SECTION_CARD}>
         <h2 className="text-item font-semibold">파일 형식</h2>
         <p className="text-caption text-muted-foreground">
           헤더 6열 고정입니다. 내보내기와 가져오기가 같은 형식을 씁니다.

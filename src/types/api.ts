@@ -152,3 +152,27 @@ export interface ImportRowError {
   line: number;
   reason: string;
 }
+
+export type ChatIntent =
+  | "MONTHLY_SUMMARY"
+  | "CATEGORY_AMOUNT"
+  | "RECENT_TRANSACTIONS"
+  | "BUDGET_STATUS"
+  | "UNKNOWN";
+
+/**
+ * POST /api/v1/chat 응답.
+ *
+ * answer 는 서버가 완성한 문장이다. 화면에서 다시 만들지 않는다 —
+ * 문장이 두 곳에 있으면 갈라지고, 이 저장소에는 그것을 검증할 테스트 러너가 없다.
+ *
+ * yearMonth 는 파서가 해석한 대상 월이다. 규칙 기반 파서는 오해할 수 있으므로
+ * 화면이 "이렇게 알아들었습니다" 를 보여줄 수 있어야 한다.
+ */
+export interface ChatResponse {
+  intent: ChatIntent;
+  answer: string;
+  yearMonth: string | null;
+  transactions: TransactionResponse[] | null;
+  suggestions: string[];
+}

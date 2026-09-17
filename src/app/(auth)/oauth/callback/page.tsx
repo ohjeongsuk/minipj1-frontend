@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { CardSkeleton } from "@/components/common/ListSkeleton";
 import { setToken } from "@/lib/apiClient";
 import { resolveError } from "@/lib/errorMessages";
+import { INLINE_ERROR } from "@/lib/utils";
 
 /**
  * 구글 로그인 콜백 (AUTH-09).
@@ -70,7 +71,7 @@ export default function OAuthCallbackPage() {
     <div className="flex flex-col gap-4">
       <p
         role="alert"
-        className="rounded-lg border border-destructive/40 px-3 py-2 text-caption text-destructive"
+        className={INLINE_ERROR}
       >
         {errorMessage}
       </p>

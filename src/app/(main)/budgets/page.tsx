@@ -16,7 +16,7 @@ import { ApiRequestError } from "@/lib/apiClient";
 import { safeColor } from "@/lib/color";
 import { currentMonth } from "@/lib/date";
 import { resolveError } from "@/lib/errorMessages";
-import { HAIRLINE_ITEM, HAIRLINE_LIST } from "@/lib/utils";
+import { HAIRLINE_ITEM, HAIRLINE_LIST, INLINE_ERROR } from "@/lib/utils";
 import { formatAmount, parseAmount } from "@/lib/money";
 
 /** useSearchParams 를 쓰므로 Suspense 로 감싼다 */
@@ -117,7 +117,7 @@ function BudgetsContent() {
       {errorMessage ? (
         <p
           role="alert"
-          className="rounded-lg border border-destructive/40 px-3 py-2 text-caption text-destructive"
+          className={INLINE_ERROR}
         >
           {errorMessage}
         </p>

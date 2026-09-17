@@ -1,5 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { HAIRLINE_ITEM, HAIRLINE_LIST } from "@/lib/utils";
+import { HAIRLINE_ITEM, HAIRLINE_LIST, SECTION_CARD } from "@/lib/utils";
 
 /**
  * 로딩 표시는 스피너 대신 스켈레톤을 쓴다.
@@ -26,7 +26,7 @@ export function CardSkeleton({ cards = 3 }: { cards?: number }) {
   return (
     <div className="grid gap-3 sm:grid-cols-3" aria-busy="true" aria-label="불러오는 중">
       {Array.from({ length: cards }, (_, index) => (
-        <div key={index} className="flex flex-col gap-3 rounded-xl border border-border p-5">
+        <div key={index} className={SECTION_CARD}>
           <Skeleton className="h-3 w-16" />
           <Skeleton className="h-7 w-28" />
         </div>

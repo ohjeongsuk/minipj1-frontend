@@ -4,6 +4,7 @@ import {
   FileSpreadsheet,
   LayoutDashboard,
   LogOut,
+  MessageCircle,
   ReceiptText,
   Tags,
   Wallet,
@@ -35,6 +36,7 @@ const NAV = [
   { href: "/budgets", label: "예산", icon: Wallet },
   { href: "/settings/categories", label: "카테고리", icon: Tags },
   { href: "/data", label: "데이터", icon: FileSpreadsheet },
+  { href: "/chat", label: "챗봇", icon: MessageCircle },
 ] as const;
 
 interface AppHeaderProps {
@@ -87,10 +89,15 @@ export function AppHeader({ nickname, onLogout }: AppHeaderProps) {
         </div>
       </header>
 
-      {/* 모바일 하단 탭 바. 데스크톱에서는 숨긴다 */}
+      {/* 모바일 하단 탭 바. 데스크톱에서는 숨긴다.
+          ⚠️ 칸 수를 NAV 길이에서 계산한다. 숫자를 박아두면 항목이 하나 늘었을 때
+             넘친 항목이 둘째 줄로 내려가 바 높이가 두 배가 되고, 그만큼 본문을 덮는다.
+             Tailwind 는 클래스명을 정적으로 스캔하므로 문자열 조립 대신
+             gridTemplateColumns 인라인 스타일을 쓴다. */}
       <nav
         aria-label="주요 메뉴"
-        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-border bg-muted sm:hidden"
+        style={{ gridTemplateColumns: `repeat(${NAV.length}, minmax(0, 1fr))` }}
+        className="fixed inset-x-0 bottom-0 z-40 grid border-t border-border bg-muted sm:hidden"
       >
         {NAV.map(({ href, label, icon: Icon }) => (
           <Link
