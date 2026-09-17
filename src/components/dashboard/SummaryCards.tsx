@@ -50,12 +50,15 @@ export function SummaryCards({ summary }: { summary: StatsSummary }) {
       {/*
         칸 비율을 고정한다. flex-[2] 로도 되지만 grid 여야 세로 구분선(divide-x)이
         칸 경계에 정확히 선다.
-        ⚠️ 좁은 화면에서는 잔액 쪽을 2.4fr 로 넓힌다. 잔액은 축약할 수 없는 값이라
-           (히어로다) 자리를 못 받으면 바로 잘리는데, 수입·지출은 만 단위로 줄여
-           같은 폭을 더 잘 견딘다. 320px 에서 2fr 이면 잔액이 24px 넘친다.
+        ⚠️ 2:1:1 이라 잔액 칸이 정확히 절반이다. 아래 액션 바가 5:5 이므로
+           위아래 구분선이 같은 자리에 선다. 비율을 바꾸면 선이 어긋난다.
+           좁은 화면에서는 잔액 칸의 여백을 줄여 자리를 만든다.
+           ⚠️ 320px 에서는 px-2(8px) 가 상한이다. 칸이 144px 인데 "2,171,699원" 이
+              125px 라 그 이상 주면 히어로 숫자가 잘린다. 360px(xs) 부터는
+              자리가 남으므로 px-4 로 숨통을 틔운다.
       */}
-      <dl className="grid grid-cols-[2.4fr_1fr_1fr] divide-x divide-border bg-card sm:grid-cols-[2fr_1fr_1fr]">
-        <div className="flex min-w-0 flex-col justify-center gap-0.5 px-2.5 py-4 sm:px-5">
+      <dl className="grid grid-cols-[2fr_1fr_1fr] divide-x divide-border bg-card">
+        <div className="flex min-w-0 flex-col justify-center gap-0.5 px-2 py-4 xs:px-4 sm:px-5">
           <dt className="truncate text-[0.625rem] text-muted-foreground sm:text-caption">이번 달 잔액</dt>
           <dd
             title={`${formatAmount(summary.net)}원`}
@@ -95,6 +98,7 @@ export function SummaryCards({ summary }: { summary: StatsSummary }) {
       </dl>
 
       {/* 구분선은 액센트 위에 얹히므로 border-border 가 아니라 전경색을 흐린 값을 쓴다 */}
+      {/* 5:5 다. 위 칸이 2:1:1 이라 잔액 칸 경계와 이 구분선이 같은 자리에 선다 */}
       <div className="grid grid-cols-2 divide-x divide-primary-foreground/25 border-t border-border">
         {ACTIONS.map(({ href, label, icon: Icon }) => (
           <Link
