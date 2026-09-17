@@ -26,10 +26,13 @@ import type { StatsSummary } from "@/types/api";
  *    두 체계로 갈라진다. 값은 globals.css 의 --hero-shadow 한 곳에만 둔다.
  *    다크 모드에서는 그 토큰이 none 이 되어 border 만 남는다.
  *
- * ⚠️ 모바일에서도 세 칸을 유지하되 수입·지출은 만 단위로 줄인다.
- *    390px 에서 칸 하나에 주어지는 자리가 94px 인데 "3,200,000원" 은 86px 라
- *    아슬아슬하고, 조금만 더 큰 금액이면 넘친다. "320만원" 은 54px 다.
- *    데스크톱은 칸이 244px 라 줄일 이유가 없으므로 원래 금액을 그대로 쓴다.
+ * ⚠️ 모바일에서는 세 값 모두 만 단위로 줄인다. sm 부터 셋 다 원 단위로 돌아간다.
+ *    수입·지출은 자리가 없어서다 — 390px 에서 칸 안쪽이 73.3px 인데
+ *    "3,200,000원" 은 76.7px 라 넘친다. "320만원" 은 54px 다.
+ *    잔액은 자리가 있는데도 줄인다. 한 줄에 놓인 세 값의 단위가 갈리면
+ *    "2,171,699" 과 "320만" 이 나란히 서서 어느 쪽이 큰지 한눈에 안 들어오기 때문이다.
+ *    ⚠️ 셋을 따로 정하지 않는다. 한쪽만 바꾸면 그 순간 단위가 다시 갈린다.
+ *    정확한 값은 세 dd 모두 title 로 원 단위를 준다.
  *
  * ⚠️ 칸마다 min-w-0 이 필요하다. grid 항목의 기본값이 min-width:auto 라
  *    "글자가 안 잘리는 폭" 아래로 줄어들지 않고, 그래서 칸이 부풀어 카드를
@@ -53,13 +56,14 @@ export function SummaryCards({ summary }: { summary: StatsSummary }) {
         ⚠️ 2:1:1 이라 잔액 칸이 정확히 절반이다. 아래 액션 바가 5:5 이므로
            위아래 구분선이 같은 자리에 선다. 비율을 바꾸면 선이 어긋난다.
            좁은 화면에서는 잔액 칸의 여백을 줄여 자리를 만든다.
-           ⚠️ 320px 에서는 px-2(8px) 가 상한이다. 칸이 144px 인데 "2,171,699원" 이
-              125px 라 그 이상 주면 히어로 숫자가 잘린다. 360px(xs) 부터는
-              자리가 남으므로 px-4 로 숨통을 틔운다.
+           ⚠️ 320px 의 px-2(8px) 는 잔액이 "2,171,699원"(125px) 이던 시절에
+              칸(144px)을 넘기지 않으려고 잡은 값이다. 지금은 모바일에서
+              "217만원" 으로 줄어 여유가 생겼지만, 여백을 도로 늘리지는 않는다 —
+              넓히면 좌우 칸이 그만큼 좁아지고 거기가 더 빠듯하다.
       */}
       <dl className="grid grid-cols-[2fr_1fr_1fr] divide-x divide-border bg-card">
         <div className="flex min-w-0 flex-col justify-center gap-0.5 px-2 py-4 xs:px-4 sm:px-5">
-          <dt className="truncate text-[0.625rem] text-muted-foreground sm:text-caption">이번 달 잔액</dt>
+          <dt className="truncate text-xs text-muted-foreground sm:text-sm">이번 달 잔액</dt>
           <dd
             title={`${formatAmount(summary.net)}원`}
             className={cn(
@@ -67,14 +71,30 @@ export function SummaryCards({ summary }: { summary: StatsSummary }) {
               summary.net < 0 ? "text-expense" : "text-foreground",
             )}
           >
-            {formatAmount(summary.net)}
-            <span className="text-caption font-normal text-muted-foreground">원</span>
+            {/*
+              ⚠️ 모바일에서는 잔액도 만 단위로 줄인다. 폭이 모자라서가 아니라
+                 한 줄에 놓인 세 값의 단위를 맞추기 위해서다. 잔액만 원 단위면
+                 "2,171,699" 과 "320만" 이 나란히 서서 어느 쪽이 큰지 한눈에 안 들어온다.
+                 정확한 값은 이 dd 의 title 이 원 단위로 준다.
+            */}
+            {/*
+              ⚠️ 모바일은 "원" 을 큰 글자 안에 그대로 둔다. 축약하면 단위가
+                 "만원" 한 덩어리가 되는데, "만" 만 24px 이고 "원" 만 13px 이면
+                 한 단어가 두 크기로 쪼개져 잘못 그려진 것처럼 보인다.
+                 수입·지출도 모바일에서는 "320만원" 을 통으로 쓰므로 이쪽이 일관된다.
+
+              ⚠️ 데스크톱은 반대다. 숫자가 "2,171,699" 로 끝나므로 "원" 은
+                 단위 표시일 뿐이고, 작고 흐리게 두어야 숫자가 먼저 읽힌다.
+            */}
+            <span className="sm:hidden">{formatAmountShort(summary.net)}원</span>
+            <span className="hidden sm:inline">{formatAmount(summary.net)}</span>
+            <span className="hidden text-caption font-normal text-muted-foreground sm:inline">원</span>
           </dd>
         </div>
 
         {/* 수입·지출은 잔액보다 한 단계 작다. 근거이지 결론이 아니다 */}
         <div className="flex min-w-0 flex-col justify-center gap-0.5 px-1.5 py-4 sm:px-4">
-          <dt className="truncate text-[0.625rem] text-muted-foreground sm:text-caption">총수입</dt>
+          <dt className="truncate text-xs text-muted-foreground sm:text-sm">총수입</dt>
           <dd
             /* 축약값이 잘릴 만큼 큰 금액일 때 원래 값을 확인할 수 있게 둔다 */
             title={`${formatAmount(summary.income)}원`}
@@ -85,7 +105,7 @@ export function SummaryCards({ summary }: { summary: StatsSummary }) {
           </dd>
         </div>
         <div className="flex min-w-0 flex-col justify-center gap-0.5 px-1.5 py-4 sm:px-4">
-          <dt className="truncate text-[0.625rem] text-muted-foreground sm:text-caption">총지출</dt>
+          <dt className="truncate text-xs text-muted-foreground sm:text-sm">총지출</dt>
           <dd
             /* 축약값이 잘릴 만큼 큰 금액일 때 원래 값을 확인할 수 있게 둔다 */
             title={`${formatAmount(summary.expense)}원`}
