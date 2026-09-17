@@ -6,8 +6,8 @@ import { Suspense, useState } from "react";
 
 import { BudgetBar } from "@/components/chart/BudgetBar";
 import { CategoryDonut } from "@/components/chart/CategoryDonut";
+import { DailyTrendChart } from "@/components/chart/DailyTrendChart";
 import { MonthHeatmap } from "@/components/chart/MonthHeatmap";
-import { TrendLine } from "@/components/chart/TrendLine";
 import type { ChartDatum } from "@/components/chart/types";
 import { EmptyState } from "@/components/common/EmptyState";
 import { ErrorState } from "@/components/common/ErrorState";
@@ -167,8 +167,7 @@ function DashboardContent() {
           </section>
 
           <section className={SECTION_CARD}>
-            <h2 className="text-caption text-muted-foreground">일별 지출 추이</h2>
-            <TrendLine data={trendData} label="일별 지출 추이" />
+            <DailyTrendChart data={trendData} />
           </section>
         </div>
       )}

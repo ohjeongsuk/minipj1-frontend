@@ -21,14 +21,28 @@ import type { ChartDatum } from "./types";
  */
 interface TrendLineProps {
   data: ChartDatum[];
+  /** 최소 높이. 카드에 남는 자리가 있으면 그만큼 늘어난다 */
   height?: number;
   /** 스크린리더용 설명. 무엇의 추이인지는 화면이 정한다 */
   label?: string;
   /** 축 라벨의 단위. 기본은 원 */
   unit?: string;
+  /**
+   * 최고점 표시 여부.
+   *
+   * ⚠️ 누적 그래프에서는 반드시 false 다. 누적값은 계속 늘어나기만 해서
+   *    최고점이 항상 마지막 날이다. "30일 최고" 는 정보가 아니라 소음이다.
+   */
+  showPeak?: boolean;
 }
 
-export function TrendLine({ data, height = 200, label = "추이", unit = "원" }: TrendLineProps) {
+export function TrendLine({
+  data,
+  height = 200,
+  label = "추이",
+  unit = "원",
+  showPeak = true,
+}: TrendLineProps) {
   if (data.length === 0) {
     return null;
   }
@@ -42,6 +56,7 @@ export function TrendLine({ data, height = 200, label = "추이", unit = "원" }
   // 최고점은 하나만 표시한다. 같은 값이 여러 개면 첫 번째를 쓴다
   const peakIndex = values.indexOf(Math.max(...values));
   const peak = data[peakIndex];
+  const last = data[data.length - 1];
 
   /** 0~100(%) 좌표. viewBox 가 아니라 비율로 두어야 HTML 과 SVG 가 같은 자리를 가리킨다 */
   const pos = (index: number) => ({
@@ -69,44 +84,59 @@ export function TrendLine({ data, height = 200, label = "추이", unit = "원" }
    */
   const peakBelow = peakPos.y < 25;
 
+  /*
+   * 누적 그래프는 "합계" 와 "가장 많이 쓴 날" 이 둘 다 의미가 없다.
+   * 이미 누적된 값을 다시 더하면 아무 뜻도 없는 수가 나오고,
+   * 최댓값은 언제나 마지막 날이다. 대신 처음과 끝을 읽어 준다.
+   */
+  const description = showPeak
+    ? `${label}. ${data.length}일 동안 합계 ${formatAmount(total)}${unit}, ` +
+      `가장 많이 쓴 날은 ${peak.name}일 ${formatAmount(peak.value)}${unit}`
+    : `${label}. ${data[0].name}일 ${formatAmount(data[0].value)}${unit}에서 ` +
+      `${last.name}일 ${formatAmount(last.value)}${unit}까지`;
+
   return (
-    <figure
-      className="flex flex-col gap-1.5"
-      role="img"
-      aria-label={
-        `${label}. ${data.length}일 동안 합계 ${formatAmount(total)}${unit}, ` +
-        `가장 많이 쓴 날은 ${peak.name}일 ${formatAmount(peak.value)}${unit}`
-      }
-    >
+    <figure className="flex min-h-0 flex-1 flex-col gap-1.5" role="img" aria-label={description}>
       {/* 세로축 라벨이 차지할 자리를 padding 으로 비워 둔다. "200,000원" 이 들어갈 폭이다 */}
-      <div className="relative pl-20" style={{ height }}>
+      <div className="relative flex-1 pl-20" style={{ minHeight: height }}>
         <ChartAxis max={max} unit={unit} />
 
         {/* ── 영역·선 (SVG) ────────────────────────────────
             viewBox 는 100x100 고정이고 실제 크기는 CSS 가 정한다.
             늘어나도 괜찮은 요소만 여기 둔다. */}
-        <svg
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-          className="size-full overflow-visible"
-          aria-hidden
-        >
-
-          <polygon points={area} fill="var(--color-primary)" opacity={0.1} />
-          <polyline
-            points={polyline}
-            fill="none"
-            stroke="var(--color-primary)"
-            strokeWidth={2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            vectorEffect="non-scaling-stroke"
-          />
-        </svg>
+        {/*
+          ⚠️ 절대 배치는 div 가 맡고 SVG 는 그 안을 채운다. SVG 를 직접 띄우면 안 된다 —
+             두 가지가 어긋난다.
+             1) 흐름 안에 두면 내재 크기 계산 단계에서 height:100% 가 풀리지 않아
+                viewBox 의 1:1 비율로 제 높이를 정하고, 카드를 정사각형만큼 밀어낸다.
+             2) SVG 를 absolute 로 띄워도 대체 요소(replaced element)라
+                height:auto 일 때 top/bottom 으로 늘어나지 않고 고유 비율을 쓴다.
+                선이 격자선보다 아래로 내려가 0 원 위치가 어긋난다.
+             div 는 대체 요소가 아니라 top/bottom 으로 정확히 늘어나고,
+             그 안의 size-full 은 확정된 높이를 기준으로 풀린다. 막대 차트와 같은 구조다. */}
+        <div className="absolute inset-y-0 right-0 left-20">
+          <svg
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+            className="size-full overflow-visible"
+            aria-hidden
+          >
+            <polygon points={area} fill="var(--color-primary)" opacity={0.1} />
+            <polyline
+              points={polyline}
+              fill="none"
+              stroke="var(--color-primary)"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              vectorEffect="non-scaling-stroke"
+            />
+          </svg>
+        </div>
 
         {/* ── 최고점 표시 (HTML) ────────────────────────────
             SVG 안에 두면 preserveAspectRatio="none" 때문에 원이 타원이 된다. */}
-        {peak.value > 0 ? (
+        {showPeak && peak.value > 0 ? (
           <div
             className="pointer-events-none absolute"
             /*
