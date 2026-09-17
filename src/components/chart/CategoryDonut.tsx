@@ -44,8 +44,14 @@ export function CategoryDonut({ data, total, size = 180, percents }: CategoryDon
     return segment;
   });
 
+  /*
+   * ⚠️ 가로 배치를 sm 이 아니라 lg 에서 켠다. 대시보드는 sm 에서 카드를 2열로
+   *    나누므로, 정작 sm 이 되는 순간 이 카드는 반쪽(약 290px)이 되어 더 좁아진다.
+   *    그때 가로로 눕히면 도넛 160px 를 빼고 범례에 66px 만 남아 카테고리명이
+   *    0px 로 찌부러진다. 카드가 실제로 넓어지는 것은 lg 부터다.
+   */
   return (
-    <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:gap-6">
+    <div className="flex flex-col items-center gap-4 lg:flex-row lg:items-center lg:gap-6">
       <svg
         width={size}
         height={size}
