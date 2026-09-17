@@ -75,8 +75,15 @@ export function TrendLine({ data, height = 200, label = "추이", unit = "원" }
   const area = `${points[0].x},100 ${polyline} ${points[points.length - 1].x},100`;
 
   const peakPos = pos(peakIndex);
-  // 최고점 라벨이 왼쪽/오른쪽 끝에서 잘리지 않도록 붙는 방향을 바꾼다
-  const peakAnchor = peakPos.x > 70 ? "right" : "left";
+  /*
+   * 최고점 라벨이 카드 밖으로 나가지 않도록 양 끝에서는 안쪽으로 붙인다.
+   *
+   * ⚠️ 끝에서도 가운데 정렬하면 라벨의 절반이 카드를 넘어간다.
+   *    마지막 날 지출이 가장 큰 달에서 실제로 그렇게 됐다.
+   *    `right-0` 은 라벨의 오른쪽 끝을 점에 맞추므로 왼쪽으로만 자란다.
+   */
+  const peakAlign =
+    peakPos.x > 80 ? "right-0" : peakPos.x < 20 ? "left-0" : "left-0 -translate-x-1/2";
   /*
    * 최고점은 정의상 세로축 최댓값과 같은 높이다. 라벨을 점 위에 두면
    * 차트 영역 밖으로 나가 제목과 겹친다. 위쪽에 붙는 경우에는 아래로 뒤집는다.
@@ -146,7 +153,17 @@ export function TrendLine({ data, height = 200, label = "추이", unit = "원" }
         {peak.value > 0 ? (
           <div
             className="pointer-events-none absolute"
-            style={{ left: `calc(5rem + ${peakPos.x}% - ${peakPos.x}% * 5 / 100)`, top: `${peakPos.y}%` }}
+            /*
+             * ⚠️ 5rem(라벨 칸)을 "5%" 로 근사하지 않는다. 둘이 같아지는 것은
+             *    부모 폭이 정확히 1600px 일 때뿐이라, 그보다 좁으면 점이 선에서
+             *    오른쪽으로 밀린다. 어긋남이 x 에 비례해 커져서 최고점이
+             *    왼쪽에 있을 때는 몇 px 라 보이지 않다가, 마지막 날이 최고점이면
+             *    카드를 뚫고 나간다. 섞인 단위는 calc 에 그대로 맡긴다.
+             */
+            style={{
+              left: `calc(5rem + (100% - 5rem) * ${peakPos.x} / 100)`,
+              top: `${peakPos.y}%`,
+            }}
           >
             <span className="absolute size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary ring-2 ring-card" />
             {/*
@@ -160,7 +177,7 @@ export function TrendLine({ data, height = 200, label = "추이", unit = "원" }
             <span
               className={`absolute whitespace-nowrap rounded bg-card px-1 py-0.5 text-caption font-medium text-primary tabular-nums ${
                 peakBelow ? "translate-y-2.5" : "-translate-y-[1.6rem]"
-              } ${peakAnchor === "right" ? "right-0 translate-x-1/2" : "left-0 -translate-x-1/2"}`}
+              } ${peakAlign}`}
             >
               {peak.name}일 최고
             </span>
