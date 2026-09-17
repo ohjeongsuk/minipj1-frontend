@@ -4,6 +4,7 @@ import { Bot, Send, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "cn";
 
+import { BotAvatar, SuggestionChip } from "@/components/chat/ChatBits";
 import { ChatMessage } from "@/components/chat/ChatMessage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -116,14 +117,7 @@ export function ChatPanel({ userId, className, autoFocus = false }: ChatPanelPro
             {/* 글로만 두면 무엇을 물어야 할지 모른다. 눌러서 바로 보낼 수 있게 한다 */}
             <div className="mt-3 flex flex-wrap gap-2">
               {WELCOME.map((text) => (
-                <button
-                  key={text}
-                  type="button"
-                  onClick={() => send(text)}
-                  className="rounded-lg border border-border px-2 py-1 text-caption hover:bg-muted"
-                >
-                  {text}
-                </button>
+                <SuggestionChip key={text} text={text} onSelect={send} />
               ))}
             </div>
           </div>
@@ -187,12 +181,7 @@ export function ChatPanel({ userId, className, autoFocus = false }: ChatPanelPro
 function TypingIndicator() {
   return (
     <div className="mt-3 flex items-start gap-2" aria-live="polite">
-      <span
-        aria-hidden
-        className="flex size-7 shrink-0 items-center justify-center rounded-full border border-border bg-muted"
-      >
-        <Bot className="size-4 text-primary" />
-      </span>
+      <BotAvatar />
       <span className="flex items-center gap-1 rounded-xl border border-border bg-card px-3 py-3">
         <span className="sr-only">답을 찾는 중이에요</span>
         {[0, 150, 300].map((delay) => (

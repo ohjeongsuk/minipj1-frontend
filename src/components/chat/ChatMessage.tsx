@@ -1,7 +1,8 @@
 "use client";
 
-import { Bot } from "lucide-react";
 import { cn } from "cn";
+
+import { BotAvatar, SuggestionChip } from "@/components/chat/ChatBits";
 
 import { formatListDate } from "@/lib/date";
 import { formatSignedAmount } from "@/lib/money";
@@ -31,14 +32,7 @@ export function ChatMessage({ bubble, onSuggestionClick }: ChatMessageProps) {
     <li className={cn("flex items-start gap-2", mine ? "justify-end" : "justify-start")}>
       {/* 말하는 쪽을 색만으로 구분하지 않는다. 답변 옆에 아이콘을 두면
           말풍선이 길어져 색 대비가 약해져도 누가 한 말인지 바로 읽힌다 */}
-      {mine ? null : (
-        <span
-          aria-hidden
-          className="flex size-7 shrink-0 items-center justify-center rounded-full border border-border bg-muted"
-        >
-          <Bot className="size-4 text-primary" />
-        </span>
-      )}
+      {mine ? null : <BotAvatar />}
 
       <div
         className={cn(
@@ -82,14 +76,7 @@ export function ChatMessage({ bubble, onSuggestionClick }: ChatMessageProps) {
         {bubble.suggestions?.length ? (
           <div className="mt-2 flex flex-wrap gap-2">
             {bubble.suggestions.map((text) => (
-              <button
-                key={text}
-                type="button"
-                onClick={() => onSuggestionClick(text)}
-                className="rounded-lg border border-border px-2 py-1 text-caption hover:bg-muted"
-              >
-                {text}
-              </button>
+              <SuggestionChip key={text} text={text} onSelect={onSuggestionClick} />
             ))}
           </div>
         ) : null}
