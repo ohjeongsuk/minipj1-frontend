@@ -26,7 +26,14 @@ import { today } from "@/lib/date";
  *    직접 부르지 않는 것이 규칙이고, toISOString 은 UTC 로 변환되어
  *    날짜가 하루 어긋난다.
  */
-const WELCOME = ["이번달 얼마 썼어?", "지난달 식비 얼마 썼어?", "최근 지출 보여줘"];
+// 서버의 UNKNOWN 안내와 같은 목록을 쓴다. 두 곳이 갈리면 사용자가
+// "못 알아들었어요" 화면에서 처음 보는 예시를 만나게 된다.
+const WELCOME = [
+  "이번달 얼마 썼어?",
+  "지난달 식비 얼마 썼어?",
+  "최근 지출 보여줘",
+  "고정지출 뭐 있어?",
+];
 
 interface ChatPanelProps {
   userId: number;
