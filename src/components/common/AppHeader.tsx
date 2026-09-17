@@ -54,7 +54,7 @@ export function AppHeader({ nickname, onLogout }: AppHeaderProps) {
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex h-16 max-w-5xl items-center gap-6 px-4 sm:px-6">
           <Link href="/dashboard" className="text-item font-semibold">
-            머니로그
+            잔고
           </Link>
 
           <nav
