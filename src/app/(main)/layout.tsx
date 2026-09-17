@@ -40,9 +40,22 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="min-h-dvh">
       <AppHeader nickname={me?.nickname ?? ""} onLogout={logout} />
-      {/* 모바일은 하단 탭 바에 가리지 않도록 아래 여백을 크게 준다 */}
-      {/* 하단 탭 바가 md 까지 떠 있으므로 본문 아래 여백도 md 에서 푼다 */}
-      <main className="mx-auto max-w-5xl px-4 pt-6 pb-24 sm:px-6 md:pb-10">{children}</main>
+      {/*
+        아래 여백은 하단 탭 바가 아니라 챗봇 FAB 를 기준으로 잡는다.
+
+        ⚠️ 예전 값 pb-24(96px) 는 탭 바 64px 만 피하려던 값이었다. 그런데 FAB 가
+           bottom-20(80px) + size-14(56px) 라 바닥에서 136px 까지 올라온다.
+           그래서 페이지 맨 아래 오른쪽에 버튼이 있으면 FAB 가 그 위에 얹혀
+           클릭 자체가 FAB 로 들어갔다 — 예산 화면의 "저장" 이 실제로 안 눌렸다.
+           390x667 에서 저장 버튼(539~571)과 FAB(531~587)가 겹치는 것을 확인했다.
+
+        ⚠️ 이건 예산 화면만의 문제가 아니다. 오른쪽 아래에 동작을 두는 화면이면
+           전부 같은 증상이 나므로 공통 레이아웃에서 막는다.
+
+        모바일 pb-40(160px) = FAB 상단 136px + 여유 24px
+        md    pb-24(96px)  = FAB 가 bottom-6 으로 내려와 상단이 80px + 여유 16px
+      */}
+      <main className="mx-auto max-w-5xl px-4 pt-6 pb-40 sm:px-6 md:pb-24">{children}</main>
       {/* 본문 양옆 여백. 1400px 미만에서는 자리가 없어 렌더하지 않는다 */}
       <AdSlot side="left" />
       <AdSlot side="right" />
