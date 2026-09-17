@@ -1,5 +1,6 @@
 "use client";
 
+import { Bot } from "lucide-react";
 import { cn } from "cn";
 
 import { formatListDate } from "@/lib/date";
@@ -24,8 +25,21 @@ interface ChatMessageProps {
 export function ChatMessage({ bubble, onSuggestionClick }: ChatMessageProps) {
   const mine = bubble.role === "user";
 
+  // 아바타는 위쪽에 맞춘다. items-end 로 두면 답변이 길어질수록 아이콘이
+  // 마지막 줄 옆으로 내려가 누가 한 말인지가 첫 줄에서 읽히지 않는다.
   return (
-    <li className={cn("flex", mine ? "justify-end" : "justify-start")}>
+    <li className={cn("flex items-start gap-2", mine ? "justify-end" : "justify-start")}>
+      {/* 말하는 쪽을 색만으로 구분하지 않는다. 답변 옆에 아이콘을 두면
+          말풍선이 길어져 색 대비가 약해져도 누가 한 말인지 바로 읽힌다 */}
+      {mine ? null : (
+        <span
+          aria-hidden
+          className="flex size-7 shrink-0 items-center justify-center rounded-full border border-border bg-muted"
+        >
+          <Bot className="size-4 text-primary" />
+        </span>
+      )}
+
       <div
         className={cn(
           "max-w-[85%] rounded-xl border px-3 py-2 text-item",

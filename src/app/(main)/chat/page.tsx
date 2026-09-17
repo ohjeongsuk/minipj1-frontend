@@ -22,7 +22,13 @@ export default function ChatPage() {
           기록을 찾아드려요. 추가하거나 지우지는 않아요.
         </p>
       </div>
-      {me ? <ChatPanel userId={me.id} /> : <CardSkeleton />}
+      {/* ChatPanel 이 목록만 스크롤시키므로 높이를 여기서 준다.
+          헤더(64px) + 상하 패딩 + 제목 영역을 뺀 값이다 */}
+      {me ? (
+        <ChatPanel userId={me.id} className="h-[calc(100dvh-16rem)] min-h-[24rem]" />
+      ) : (
+        <CardSkeleton />
+      )}
     </div>
   );
 }

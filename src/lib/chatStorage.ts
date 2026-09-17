@@ -49,6 +49,15 @@ export function writeChat(userId: number, bubbles: ChatBubble[]): void {
   }
 }
 
+/** 사용자가 "대화 지우기" 를 눌렀을 때. 자기 이력만 지운다 */
+export function clearChat(userId: number): void {
+  try {
+    window.localStorage.removeItem(`${PREFIX}${userId}`);
+  } catch {
+    // 지우지 못해도 화면의 말풍선은 비워진다. 다음 저장이 덮어쓴다
+  }
+}
+
 /** 로그아웃 시 모든 계정의 이력을 지운다. 어느 계정이었는지 알 필요가 없다 */
 export function clearAllChats(): void {
   if (typeof window === "undefined") {
