@@ -2,6 +2,7 @@
 
 import { formatAmount } from "@/lib/money";
 
+import { ChartAxis, niceCeil } from "./ChartAxis";
 import type { ChartDatum } from "./types";
 
 /**
@@ -10,13 +11,13 @@ import type { ChartDatum } from "./types";
  * 데이터 포인트가 수십 개뿐이라 라이브러리가 필요 없다.
  * props 는 Recharts 의 <Line data={...} dataKey="value" /> 와 같은 모양으로 둔다.
  *
- * ⚠️ 선·영역·격자선만 SVG 로 그리고 글자와 점은 HTML 로 얹는다.
+ * ⚠️ 선·영역만 SVG 로 그리고 글자와 점은 HTML 로 얹는다.
  *    너비를 모르는 채 반응형으로 만들려면 preserveAspectRatio="none" 이 필요한데,
  *    그러면 SVG 안의 글자와 원이 가로로 늘어나 찌그러진다.
  *    늘어나도 괜찮은 것(선·면)만 SVG 에 두고 나머지는 밖으로 뺀다.
  *
- * ⚠️ 눈금은 0 과 최댓값 사이를 균등 분할하지 않고 0 · 중간 · 최댓값 셋만 둔다.
- *    격자선이 많아지면 정작 읽어야 할 선보다 눈에 먼저 들어온다.
+ * ⚠️ 눈금과 격자선은 ChartAxis 가 맡는다. 막대 차트와 같은 축을 써야
+ *    그래프 종류를 바꿨을 때 눈금이 흔들리지 않는다.
  */
 interface TrendLineProps {
   data: ChartDatum[];
@@ -25,28 +26,6 @@ interface TrendLineProps {
   label?: string;
   /** 축 라벨의 단위. 기본은 원 */
   unit?: string;
-}
-
-/** 0 · 중간 · 최댓값 */
-const TICK_RATIOS = [1, 0.5, 0];
-
-/**
- * 축 최댓값을 읽기 좋은 수로 올린다. 1 · 2 · 2.5 · 5 × 10^n 중 하나가 된다.
- *
- * 데이터 최댓값을 그대로 쓰면 눈금이 168,336 / 84,168 처럼 나와
- * "얼마쯤인가" 를 가늠하는 데 오히려 머리를 쓰게 된다.
- * 200,000 / 100,000 이면 한눈에 읽힌다.
- *
- * 덤으로 최고점이 천장에 닿지 않아 최고점 라벨이 카드 밖으로 밀리지 않는다.
- */
-function niceCeil(value: number): number {
-  if (value <= 0) {
-    return 1;
-  }
-  const magnitude = 10 ** Math.floor(Math.log10(value));
-  const normalized = value / magnitude;
-  const step = normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 2.5 ? 2.5 : normalized <= 5 ? 5 : 10;
-  return step * magnitude;
 }
 
 export function TrendLine({ data, height = 200, label = "추이", unit = "원" }: TrendLineProps) {
@@ -101,19 +80,9 @@ export function TrendLine({ data, height = 200, label = "추이", unit = "원" }
     >
       {/* 세로축 라벨이 차지할 자리를 padding 으로 비워 둔다. "200,000원" 이 들어갈 폭이다 */}
       <div className="relative pl-20" style={{ height }}>
-        {/* ── 세로축 눈금 (HTML) ───────────────────────────── */}
-        {TICK_RATIOS.map((ratio) => (
-          <span
-            key={ratio}
-            className="absolute left-0 w-[4.5rem] -translate-y-1/2 text-right text-caption text-muted-foreground tabular-nums"
-            style={{ top: `${(1 - ratio) * 100}%` }}
-          >
-            {formatAmount(max * ratio)}
-            {unit}
-          </span>
-        ))}
+        <ChartAxis max={max} unit={unit} />
 
-        {/* ── 격자선·영역·선 (SVG) ──────────────────────────
+        {/* ── 영역·선 (SVG) ────────────────────────────────
             viewBox 는 100x100 고정이고 실제 크기는 CSS 가 정한다.
             늘어나도 괜찮은 요소만 여기 둔다. */}
         <svg
@@ -122,19 +91,6 @@ export function TrendLine({ data, height = 200, label = "추이", unit = "원" }
           className="size-full overflow-visible"
           aria-hidden
         >
-          {TICK_RATIOS.map((ratio) => (
-            <line
-              key={ratio}
-              x1="0"
-              x2="100"
-              y1={(1 - ratio) * 100}
-              y2={(1 - ratio) * 100}
-              stroke="var(--color-border)"
-              strokeWidth={1}
-              strokeDasharray={ratio === 0 ? undefined : "3 3"}
-              vectorEffect="non-scaling-stroke"
-            />
-          ))}
 
           <polygon points={area} fill="var(--color-primary)" opacity={0.1} />
           <polyline
