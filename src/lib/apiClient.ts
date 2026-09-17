@@ -1,3 +1,4 @@
+import { clearAllChats } from "@/lib/chatStorage";
 import type { ApiError, ApiResponse } from "@/types/api";
 
 /**
@@ -38,6 +39,11 @@ export function setToken(token: string): void {
 export function clearToken(): void {
   if (typeof window !== "undefined") {
     window.localStorage.removeItem(TOKEN_KEY);
+    // 로그아웃 경로가 둘이다 — 사용자가 누르는 useAuth.logout 과 401 에서 도는
+    // forceLogout. 둘 다 이 함수를 지나므로 여기서 한 번만 지운다.
+    // 호출부마다 넣으면 나중에 세 번째 경로가 생겼을 때 조용히 빠지고,
+    // 그 실패는 "다음 사용자가 남의 가계부 질문을 본다" 는 형태로 나타난다.
+    clearAllChats();
   }
 }
 
