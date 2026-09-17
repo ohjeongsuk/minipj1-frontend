@@ -49,10 +49,28 @@ npm run lint
 | `/budgets` | 카테고리별 월 예산 설정 |
 | `/settings/categories` | 카테고리 관리 |
 | `/data` | CSV 가져오기 / 내보내기 |
+| `/chat` | 챗봇 전체 화면. 어느 화면에서나 **떠 있는 창**으로도 열린다 |
 
 **`/transactions/new` 페이지를 만들지 않았다.** 목록 상단의 퀵 입력 바가 그 역할을 한다 —
 입력 필드가 여섯 개뿐인데 페이지를 나누면 "목록 → 클릭 → 이동 → 입력 → 저장 → 복귀" 다섯 단계가 되고,
 그 마찰이 가계부 앱을 그만두게 만든다.
+
+### 챗봇
+
+자연어로 물으면 기존 집계를 찾아 문장으로 답한다. **조회 전용이라 기록을 바꾸지 않는다.**
+
+```
+"이번달 얼마 썼어?"        월 요약        "지난달 식비 얼마 썼어?"   카테고리별
+"최근 지출 3건 보여줘"     최근 내역      "식비 예산 얼마 남았어?"   예산 소진율
+"이 속도면 얼마 쓸까?"     예상 지출      "고정지출 뭐 있어?"        고정지출
+"15일 얼마 썼어?"          특정 하루
+```
+
+- **입구가 둘이고 대화 기록을 공유한다.** 떠 있는 창(우측 하단 버튼)과 `/chat` 전체 화면이
+  `ChatPanel` 하나와 같은 `localStorage` 키를 쓴다. `/chat` 에서는 버튼을 숨긴다.
+- **답변 문장은 서버가 만든다.** 화면에서 다시 만들면 두 곳이 갈라지는데,
+  이 저장소에는 그것을 검증할 테스트 러너가 없다.
+- 대화 기록은 `moneylog_chat_{userId}` 에 최근 50개까지 저장하고 **로그아웃 시 지운다**.
 
 ---
 
@@ -67,9 +85,10 @@ src/
 │   ├── ui/          shadcn/ui (스타일 radix-nova)
 │   ├── common/      Pagination, EmptyState, ErrorState, Skeleton, AppHeader, ThemeToggle
 │   ├── chart/       CategoryDonut, TrendLine, BudgetBar, MonthHeatmap
+│   ├── chat/        ChatWidget, ChatPanel, ChatMessage, ChatBits
 │   └── transaction/ TransactionList, TransactionRow, QuickAddBar, TransactionForm
-├── hooks/           useTransactions, useStats, useAuth
-├── lib/             apiClient, queryClient, money, date, color, utils
+├── hooks/           useTransactions, useStats, useAuth, useChat
+├── lib/             apiClient, queryClient, money, date, color, chatStorage, utils
 └── types/           백엔드 DTO 와 이름을 맞춘 응답 타입
 ```
 
@@ -110,6 +129,12 @@ src/
 - **거래를 변경하면 `['stats']` 와 `['budgets']` 도 함께 무효화한다.** 놓치면 대시보드 합계가 갱신되지 않는다.
 - **`useAuth` 는 토큰 존재 여부가 아니라 `exp` 를 본다.** 만료된 토큰이 판정을 통과하면 보호된 화면이 401 왕복 동안 노출된다.
 - **차트는 `src/components/chart/` 밖으로 나가지 않는다.** 화면에서 SVG 를 직접 그리지 않는다.
+- **`localStorage` 접근은 전부 `try/catch` 로 감싼다.** 프라이빗 모드·사이트 데이터 차단에서는
+  값을 못 주는 게 아니라 **예외를 던진다**. 실패해도 화면은 정상적으로 그려져야 한다.
+- **`localStorage` 를 첫 렌더에서 읽지 않는다.** 서버 HTML 에는 없으므로 hydration 이 어긋난다.
+  마운트 이후에 넣는다 (`ChatPanel`·`ThemeToggle` 참조).
+- **`(main)/layout.tsx` 에 넣는 import 는 여섯 화면이 함께 받는다.** `ChatWidget` 에
+  애니메이션 라이브러리를 쓰지 않는 이유다. 레이아웃에 들어가면 비용이 라우트 수만큼 곱해진다.
 - **`dangerouslySetInnerHTML` 을 쓰지 않는다.** `category.color` 는 `#RRGGBB` 정규식 검증 후 인라인 스타일에 넣는다.
 - **`any` 금지.** 불가피하면 `unknown` + 타입 가드.
 - **주석은 한글로 작성한다.** 코드 식별자는 영문.
@@ -123,6 +148,9 @@ src/
 - 테마는 **시스템 / 라이트 / 다크** 셋이고 헤더 버튼 하나가 순환한다. 선택은 `localStorage`(`moneylog_theme`)에 남는다.
   기본값이 "`data-theme` 속성 없음" 이라 대다수 사용자에게는 JS 가 개입하지 않고 CSS 만으로 시스템 설정을 따른다.
 - Tailwind 4 는 **CSS-first** 다. `tailwind.config.js` 가 없고 `globals.css` 의 `@theme` 에 토큰을 정의한다.
+- 떠 있는 챗봇 창은 **`shadow-md`** 를 쓴다. 「그림자는 모달·드롭다운에만」 규칙이 허용하는 경우이고
+  `popover`·`select` 가 이미 같은 값을 쓴다. `--hero-shadow` 는 잔액 카드 전용이며 다크에서 `none` 이다.
+- **모바일에서 떠 있는 버튼은 `bottom-20`** 이다. 하단 탭 바가 64px 이라 `bottom-6` 이면 탭 위에 얹힌다.
 
 ---
 
