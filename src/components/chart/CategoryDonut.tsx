@@ -23,9 +23,15 @@ interface CategoryDonutProps {
 
 const STROKE = 18;
 
-export function CategoryDonut({ data, total, size = 180, percents }: CategoryDonutProps) {
+export function CategoryDonut({ data, total, size = 160, percents }: CategoryDonutProps) {
   const sum = total ?? data.reduce((acc, d) => acc + d.value, 0);
-  const radius = (size - STROKE) / 2;
+  /*
+   * ⚠️ 1px 을 빼는 것이 핵심이다.
+   *    (size - STROKE) / 2 로 두면 링의 바깥 가장자리가 중심에서 정확히 size/2 가 되어
+   *    viewBox 경계와 딱 맞닿는다. <svg> 는 기본이 overflow:hidden 이라
+   *    안티앨리어싱된 바깥 한 픽셀이 깎여 나가고, 링 테두리가 미세하게 잘려 보인다.
+   */
+  const radius = (size - STROKE) / 2 - 1;
   const circumference = 2 * Math.PI * radius;
 
   // 누적 오프셋으로 조각을 이어 붙인다
@@ -52,10 +58,18 @@ export function CategoryDonut({ data, total, size = 180, percents }: CategoryDon
    */
   return (
     <div className="flex flex-col items-center gap-4 lg:flex-row lg:items-center lg:gap-6">
+      {/*
+        ⚠️ shrink-0 이 없으면 width 속성이 지켜지지 않는다.
+           flex 항목의 기본값이 flex-shrink:1 이라, 옆 범례(w-full)와 자리를 다투면
+           SVG 가 가로로만 줄어든다. viewBox 가 있어 내용은 비율을 지키며 축소되므로
+           원이 찌그러지지는 않지만, 도넛이 작아지고 위아래에 빈 띠가 생겨
+           "잘린 것처럼" 보인다. 실측으로 지정한 180px 가 120.8px 까지 밀린 적이 있다.
+      */}
       <svg
         width={size}
         height={size}
         viewBox={`0 0 ${size} ${size}`}
+        className="shrink-0"
         role="img"
         aria-label={`카테고리별 지출 합계 ${formatAmount(sum)}원`}
       >

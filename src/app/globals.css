@@ -115,6 +115,18 @@
     0 6px 20px -4px rgb(0 0 0 / 0.1),
     0 2px 6px -2px rgb(0 0 0 / 0.05);
 
+  /*
+   * 로고 마크의 순환 화살표 링 — 코랄.
+   *
+   * ⚠️ 로고 전용이다. UI 액센트는 인디고(--primary) 하나뿐이고,
+   *    로고가 그 규칙의 바깥에 서 있는 유일한 요소다.
+   *    버튼·링크·차트에 이 색을 쓰지 않는다.
+   *
+   * 화살촉과 ₩ 는 currentColor 라 본문 색(--foreground)을 그대로 따른다.
+   * 그래서 별도 토큰이 없다.
+   */
+  --logo-ring: #e4573a;
+
   --background: #fafafa;
   --foreground: #171717;
   --card: #ffffff;
@@ -164,6 +176,9 @@
      */
     --hero-shadow: none;
 
+    /* 어두운 바탕에서는 링을 한 단계 밝힌다. #e4573a 는 검정 위에서 탁해 보인다 */
+    --logo-ring: #ee6a4f;
+
     --background: #0a0a0a;
     --foreground: #fafafa;
     --card: #171717;
@@ -212,6 +227,9 @@
    * 면 구분은 카드 자체의 1px border 가 계속 맡는다.
    */
   --hero-shadow: none;
+
+  /* 어두운 바탕에서는 링을 한 단계 밝힌다. #e4573a 는 검정 위에서 탁해 보인다 */
+  --logo-ring: #ee6a4f;
 
   --background: #0a0a0a;
   --foreground: #fafafa;

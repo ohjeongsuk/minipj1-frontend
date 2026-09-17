@@ -13,6 +13,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "cn";
 
+import { Logo } from "@/components/common/Logo";
 import { ThemeToggle } from "@/components/common/ThemeToggle";
 import { Button } from "@/components/ui/button";
 
@@ -57,7 +58,12 @@ export function AppHeader({ nickname, onLogout }: AppHeaderProps) {
       {/* 그림자 대신 1px border 로 면을 구분한다 */}
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex h-16 max-w-5xl items-center gap-6 px-4 sm:px-6">
-          <Link href="/dashboard" className="text-item font-semibold">
+          {/* 워드마크는 아직 정하지 않았다. 그때까지 헤더는 마크 + "잔고" 텍스트로 쓴다 */}
+          <Link
+            href="/dashboard"
+            className="flex shrink-0 items-center gap-2 text-item font-semibold"
+          >
+            <Logo size={26} />
             잔고
           </Link>
 

@@ -6,7 +6,6 @@ import { Suspense, useState } from "react";
 
 import { BudgetBar } from "@/components/chart/BudgetBar";
 import { CategoryDonut } from "@/components/chart/CategoryDonut";
-import { DailyTrendChart } from "@/components/chart/DailyTrendChart";
 import { MonthHeatmap } from "@/components/chart/MonthHeatmap";
 import type { ChartDatum } from "@/components/chart/types";
 import { EmptyState } from "@/components/common/EmptyState";
@@ -106,26 +105,16 @@ function DashboardContent() {
     max: b.budget, // 항목마다 상한이 다르다
   }));
 
-  // 히트맵은 수입·지출을 모두 보여주고, 각 날짜가 그날의 내역으로 가는 링크가 된다
+  /*
+   * 히트맵은 수입·지출을 모두 보여주고, 각 날짜가 그날의 내역으로 가는 링크가 된다.
+   *
+   * ⚠️ 아직 오지 않은 날을 잘라내지 않는다. 서버는 그 달 전체(30·31일)를 내려주는데,
+   *    달력 모양에서는 빈 칸이 "기록 없음" 으로 자연스럽게 읽히고,
+   *    날짜 칸을 빼면 요일 정렬이 통째로 어긋난다.
+   */
   const heatmapData = daily.map((d) => ({ date: d.date, income: d.income, expense: d.expense }));
   // 내역 페이지는 from·to 를 URL 에서 그대로 읽는다. 하루만 보려면 둘을 같게 준다
   const dayHref = (date: string) => `/transactions?from=${date}&to=${date}`;
-
-  /*
-   * ⚠️ 추이 선에서는 아직 오지 않은 날을 뺀다.
-   *    서버는 그 달 전체(30·31일)를 내려주고 미래 날짜의 지출은 0 이다.
-   *    그대로 그리면 오른쪽 절반이 바닥에 붙어 "이번 달 후반에 지출이 끊겼다" 로 읽힌다.
-   *    아직 오지 않았을 뿐이므로 선을 그리지 않는 것이 맞다.
-   *
-   *    히트맵은 자르지 않는다. 달력 모양이라 빈 칸이 "기록 없음" 으로 자연스럽게 읽히고,
-   *    날짜 칸을 빼면 요일 정렬이 깨진다.
-   */
-  const trendData: ChartDatum[] = daily
-    .filter((d) => d.date <= asOf)
-    .map((d) => ({
-      name: String(Number(d.date.slice(-2))),
-      value: d.expense,
-    }));
 
   /*
    * ⚠️ 카드를 2열로 나누는 시점이 lg 다. sm(640px) 에서 나누면 카드 하나가
@@ -138,6 +127,22 @@ function DashboardContent() {
       {header}
 
       <SummaryCards summary={summary} />
+
+      {/*
+        일별 수입·지출 달력. 요약 바로 다음 자리다.
+
+        ⚠️ grid 밖이라 lg:col-span-2 가 필요 없다. 부모가 flex flex-col 이라
+           그냥 전체 폭을 쓴다. 달력 칸이 넓어지는 lg 확대는 MonthHeatmap 안에 있다.
+
+        ⚠️ 기록이 없는 달에는 그리지 않는다. 아래 EmptyState 가 그 자리를 대신하는데,
+           빈 달력과 "기록이 없어요" 를 함께 띄우면 같은 말을 두 번 하게 된다.
+      */}
+      {isEmptyMonth ? null : (
+        <section className={SECTION_CARD}>
+          <h2 className="text-caption text-muted-foreground">일별 수입·지출</h2>
+          <MonthHeatmap data={heatmapData} hrefFor={dayHref} />
+        </section>
+      )}
 
       {!isPastMonth || anomalies.length > 0 ? (
         <div className="grid gap-3 lg:grid-cols-2">
@@ -168,15 +173,6 @@ function DashboardContent() {
             ) : (
               <BudgetBar data={budgetData} showRatio />
             )}
-          </section>
-
-          <section className={SECTION_CARD}>
-            <h2 className="text-caption text-muted-foreground">일별 수입·지출</h2>
-            <MonthHeatmap data={heatmapData} hrefFor={dayHref} />
-          </section>
-
-          <section className={SECTION_CARD}>
-            <DailyTrendChart data={trendData} />
           </section>
         </div>
       )}
