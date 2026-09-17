@@ -63,7 +63,7 @@ src/
 ├── components/
 │   ├── ui/          shadcn/ui
 │   ├── common/      Pagination, EmptyState, ErrorState, Skeleton
-│   ├── chart/       DailyTrendChart(선·막대·누적), CategoryDonut, BudgetBar, MonthHeatmap
+│   ├── chart/       CategoryDonut, BudgetBar, MonthHeatmap
 │   └── transaction/ TransactionList, TransactionRow, QuickAddBar, TransactionForm
 ├── hooks/           useTransactions, useStats, useAuth
 ├── lib/             apiClient, queryClient, money, date, utils

@@ -14,10 +14,10 @@ import { cn } from "@/lib/utils";
  *    모바일 폭이 38px 이라 정사각형으로 두면 글자가 들어갈 자리가 없다.
  *    가로는 요일 7칸에 묶여 있으니 세로로만 늘린다.
  *
- * ⚠️ 확대(간격·여백·글자)를 sm 이 아니라 lg 에서 켠다. 대시보드가 sm 에서
- *    카드를 2열로 나누므로, sm 이 되는 순간 이 카드는 오히려 좁아진다
- *    (390px 전체 폭 → 640px 에서 반쪽 290px). sm 에 걸어 두면 390px 에서
- *    멀쩡하던 칸이 640px 에서 잘린다.
+ * ⚠️ 확대(간격·여백·글자·높이)를 sm 이 아니라 lg 에서 켠다. 대시보드가 카드를
+ *    2열로 나누는 시점이 lg 이고, 이 카드는 거기서 2열을 다 쓰도록 되어 있다.
+ *    즉 lg 는 이 카드가 실제로 넓어지는 유일한 지점이다.
+ *    sm 에 걸면 아직 좁은 폭에서 확대가 켜져 칸이 잘린다.
  *
  * ⚠️ 좁은 화면에서는 칸 안쪽 여백을 0 으로 둔다. 320px 에서 칸 하나가
  *    33px 뿐이라 2px 씩만 줘도 "10.7만"(30px) 이 들어가지 못한다.
@@ -119,7 +119,12 @@ export function MonthHeatmap({ data, hrefFor }: MonthHeatmapProps) {
               aria-label={`${month}월 ${day}일 내역 보기. 수입 ${formatAmount(datum.income)}원, 지출 ${formatAmount(datum.expense)}원`}
               title={`${datum.date}\n수입 ${formatAmount(datum.income)}원\n지출 ${formatAmount(datum.expense)}원`}
               className={cn(
-                "flex min-h-[4.5rem] flex-col gap-0.5 rounded-md border border-border px-0 py-1 lg:px-1",
+                /*
+                 * ⚠️ lg 에서 세로를 함께 키운다. 대시보드가 lg 부터 이 카드에 2열을 다 주므로
+                 *    칸 하나가 135px 로 넓어지는데, 높이를 72px 로 두면 1.9:1 로 납작해져
+                 *    달력이 아니라 표처럼 보인다. 96px 면 1.4:1 이라 달력 칸으로 읽힌다.
+                 */
+                "flex min-h-[4.5rem] flex-col gap-0.5 rounded-md border border-border px-0 py-1 lg:min-h-24 lg:px-1",
                 "leading-tight tabular-nums",
                 "transition-colors hover:border-primary focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
               )}

@@ -52,10 +52,9 @@ export function parseAmount(raw: string | null | undefined): string {
  * ⚠️ 칸이 좁은 곳 전용이다. 금액을 정확히 읽어야 하는 곳에는 formatAmount 를 쓰고,
  *    축약값을 보여주는 자리에는 title·aria-label 로 원 단위 금액을 함께 준다.
  *
- * 쓰는 곳은 셋이다 — 차트 세로축(ChartAxis), 일별 캘린더 칸(MonthHeatmap),
- * 좁은 화면의 요약 카드(SummaryCards). 모두 자릿수를 미리 알 수 없는 자리다.
- * 같은 TrendLine 이 일별 지출(20만)과 누적 지출(100만)을 함께 그리는데,
- * 콤마 포맷이면 "1,000,000원" 이 라벨 칸을 넘겨 두 줄로 쪼개진다.
+ * 쓰는 곳은 둘이다 — 일별 캘린더 칸(MonthHeatmap), 좁은 화면의 요약 카드(SummaryCards).
+ * 둘 다 자릿수를 미리 알 수 없는데 칸 너비는 고정된 자리라, 콤마 포맷이면
+ * "1,000,000원" 이 칸을 넘겨 잘리거나 두 줄로 쪼개진다.
  * 만·억은 한국어에서 금액을 읽는 기본 단위라 칸을 넓히는 것보다 짧고 잘 읽힌다.
  */
 export function formatAmountShort(value: number): string {
