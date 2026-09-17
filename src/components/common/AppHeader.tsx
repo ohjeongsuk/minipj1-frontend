@@ -4,6 +4,7 @@ import {
   FileSpreadsheet,
   LayoutDashboard,
   LogOut,
+  MessageCircle,
   ReceiptText,
   Tags,
   Wallet,
@@ -33,6 +34,7 @@ const NAV = [
   { href: "/dashboard", label: "대시보드", icon: LayoutDashboard },
   { href: "/transactions", label: "내역", icon: ReceiptText },
   { href: "/budgets", label: "예산", icon: Wallet },
+  { href: "/chat", label: "챗봇", icon: MessageCircle },
   { href: "/settings/categories", label: "카테고리", icon: Tags },
   { href: "/data", label: "데이터", icon: FileSpreadsheet },
 ] as const;
