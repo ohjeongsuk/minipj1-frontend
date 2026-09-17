@@ -6,8 +6,8 @@ import { Suspense, useState } from "react";
 
 import { BudgetBar } from "@/components/chart/BudgetBar";
 import { CategoryDonut } from "@/components/chart/CategoryDonut";
+import { DailyTrendChart } from "@/components/chart/DailyTrendChart";
 import { MonthHeatmap } from "@/components/chart/MonthHeatmap";
-import { TrendLine } from "@/components/chart/TrendLine";
 import type { ChartDatum } from "@/components/chart/types";
 import { EmptyState } from "@/components/common/EmptyState";
 import { ErrorState } from "@/components/common/ErrorState";
@@ -106,7 +106,10 @@ function DashboardContent() {
     max: b.budget, // 항목마다 상한이 다르다
   }));
 
-  const heatmapData = daily.map((d) => ({ date: d.date, value: d.expense }));
+  // 히트맵은 수입·지출을 모두 보여주고, 각 날짜가 그날의 내역으로 가는 링크가 된다
+  const heatmapData = daily.map((d) => ({ date: d.date, income: d.income, expense: d.expense }));
+  // 내역 페이지는 from·to 를 URL 에서 그대로 읽는다. 하루만 보려면 둘을 같게 준다
+  const dayHref = (date: string) => `/transactions?from=${date}&to=${date}`;
 
   /*
    * ⚠️ 추이 선에서는 아직 오지 않은 날을 뺀다.
@@ -162,13 +165,12 @@ function DashboardContent() {
           </section>
 
           <section className={SECTION_CARD}>
-            <h2 className="text-caption text-muted-foreground">일별 지출</h2>
-            <MonthHeatmap data={heatmapData} />
+            <h2 className="text-caption text-muted-foreground">일별 수입·지출</h2>
+            <MonthHeatmap data={heatmapData} hrefFor={dayHref} />
           </section>
 
           <section className={SECTION_CARD}>
-            <h2 className="text-caption text-muted-foreground">일별 지출 추이</h2>
-            <TrendLine data={trendData} label="일별 지출 추이" />
+            <DailyTrendChart data={trendData} />
           </section>
         </div>
       )}
