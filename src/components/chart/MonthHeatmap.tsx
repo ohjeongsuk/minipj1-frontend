@@ -61,18 +61,41 @@ function level(ratio: number): number {
 /**
  * 금액 줄.
  *
- * 좁은 화면과 데스크톱의 차이가 큰데, 칸 폭이 7열에 묶여 있어서다.
- * 390px 에서는 칸 안쪽이 38px 뿐이라 "10.7만" 을 10px 로 넣어야 하지만,
- * 대시보드가 이 카드에 2열을 다 주는 lg 부터는 안쪽이 122px 라 여유가 생긴다.
+ * 칸 폭이 7열에 묶여 있어 화면 폭에 따라 세 단계로 나눈다.
+ * 기준은 "원" 까지 붙인 최악값("16.8만원" 6자)이 칸 안쪽에 들어가는가다.
  *
- * ⚠️ lg 에서 15px 로 두는 이유는 자리가 남아서가 아니라 대비 때문이다.
- *    수입 초록(#10B981, 2.5:1)과 지출 빨강(#EF4444, 3.8:1)은 본문 대비 4.5:1 에
- *    못 미치는 색이라, 금액은 크기로 읽히게 해야 한다(디자인 시스템의 amount 15px 규칙).
+ * | 화면     | 칸 폭  | 들어가는 최대 | 채택   |
+ * |----------|-------|-------------|--------|
+ * | 320px    | 33.6px| 8px         | 7.5px  |
+ * | xs(360~) | 39.3px| 9.5px       | 9px    |
+ * | sm(640~) | 74.7px| 16px 이상    | 15px   |
  *
- * 그 결과 금액(15px)이 일자(13px)보다 커진다. 일자는 "몇 일인가" 를 말하는 라벨이고
- * 금액이 이 칸의 데이터이므로 위계가 뒤집힌 것이 아니다.
+ * ⚠️ xs 한 칸이 360~639px 를 다 덮으므로 그 구간의 천장은 가장 좁은 360px 이 정한다.
+ *    390px 이면 칸이 43.6px 라 11px 까지 들어가지만 9px 를 쓴다. 그 사이에
+ *    breakpoint 를 하나 더 만들면 1~2px 을 더 얻지만, 토큰이 하나 늘어난다.
+ *
+ * ⚠️ 한계값을 그대로 쓰지 않고 한 단계 낮춰 잡는다. 폰트 로딩 전 대체 글꼴이
+ *    Pretendard 보다 넓으면 한계값에서는 첫 페인트에 바로 잘린다.
+ *
+ * ⚠️ 폭 계산은 캔버스로 하면 틀린다. 칸에 tabular-nums 가 걸려 있어 숫자가
+ *    고정폭이 되는데 canvas measureText 는 그걸 반영하지 못한다.
+ *    실제로 캔버스가 "8px 에서 2.6px 여유" 라고 한 자리가 DOM 에서는 2px 잘렸다.
+ *    크기를 바꿀 때는 브라우저에서 scrollWidth 로 재야 한다.
+ *
+ * ⚠️ 360px 경계는 xs breakpoint 다. Tailwind 기본값은 sm(640px)이 가장 작아
+ *    "가장 좁은 폰" 과 "보통 폰" 을 나눌 수 없다. globals.css 가 이 칸을 만들어 둔 이유다.
+ *
+ * ⚠️ 15px 를 lg 가 아니라 sm 부터 켠다. 640px 이면 칸이 74.7px 라 이미 충분한데,
+ *    lg 까지 미루면 640~1023px 구간만 이유 없이 작은 글자를 쓰게 된다.
+ *    15px 인 이유는 자리가 남아서가 아니라 대비 때문이다 — 수입 초록(2.5:1)과
+ *    지출 빨강(3.8:1)은 본문 대비 4.5:1 에 못 미쳐 크기로 읽히게 해야 한다.
+ *
+ * 그 결과 sm 이상에서 금액(15px)이 일자(13px)보다 커진다. 일자는 "몇 일인가" 를
+ * 말하는 라벨이고 금액이 이 칸의 데이터이므로 위계가 뒤집힌 것이 아니다.
  */
-const AMOUNT = "truncate text-[0.625rem] lg:text-body";
+/* rem 을 쓴다 — 사용자가 브라우저 기본 글꼴을 키웠을 때 함께 커져야 한다.
+   0.46875rem = 7.5px, 0.5625rem = 9px (기본 16px 기준) */
+const AMOUNT = "truncate text-[0.46875rem] xs:text-[0.5625rem] sm:text-body";
 
 /**
  * 글자가 읽히는 범위까지만 칠한다.
@@ -88,13 +111,12 @@ const LEVEL_OPACITY = [0, 0.04, 0.07, 0.11, 0.15];
 /**
  * 0 원도 그대로 보여준다. 빈칸으로 두면 "기록이 없다" 와 "0 원" 이 구분되지 않는다.
  *
- * ⚠️ 0 이 아닐 때는 "원" 을 떼는데, 칸이 그만큼 좁기 때문이다.
- *    데스크톱 칸 안쪽이 49px 인데 "10.7만원" 은 58px 라 잘린다("10.7만" 은 45px).
- *    카드 제목이 이미 금액이라고 말하고 있고, 정확한 값은 title·aria 가 원 단위로 준다.
- *    0 에만 "원" 을 남기는 이유는 숫자 하나만 떠 있으면 금액으로 안 읽히기 때문이다.
+ * "원" 은 화면 폭과 무관하게 항상 붙인다. 숫자만 떠 있으면 금액으로 안 읽히고,
+ * 좁은 화면은 "원" 을 떼는 대신 AMOUNT 가 글자를 줄여 자리를 만든다.
+ * 축약값의 정확한 금액은 칸의 title·aria-label 이 원 단위로 따로 준다.
  */
 function short(value: number): string {
-  return value === 0 ? "0원" : formatAmountShort(value);
+  return value === 0 ? "0원" : `${formatAmountShort(value)}원`;
 }
 
 export function MonthHeatmap({ data, hrefFor }: MonthHeatmapProps) {
@@ -133,11 +155,17 @@ export function MonthHeatmap({ data, hrefFor }: MonthHeatmapProps) {
               title={`${datum.date}\n수입 ${formatAmount(datum.income)}원\n지출 ${formatAmount(datum.expense)}원`}
               className={cn(
                 /*
-                 * ⚠️ lg 에서 세로를 함께 키운다. 대시보드가 lg 부터 이 카드에 2열을 다 주므로
-                 *    칸 하나가 135px 로 넓어지는데, 높이를 72px 로 두면 1.9:1 로 납작해져
-                 *    달력이 아니라 표처럼 보인다. 96px 면 1.4:1 이라 달력 칸으로 읽힌다.
+                 * 칸 높이는 화면마다 다르다.
+                 *
+                 * ⚠️ 모바일은 52px 다. 예전 72px 는 내용(일자 + 금액 두 줄)이 44.5px 밖에
+                 *    안 쓰는데 27.5px 가 빈 채로 남아, 여섯 줄이 쌓이면 달력 하나가
+                 *    432px 를 차지했다. 52px 면 312px 로 줄어 한 화면에 들어온다.
+                 *    min-height 라 글자가 커져 내용이 더 필요해지면 칸이 알아서 늘어난다.
+                 *
+                 * ⚠️ lg 는 반대로 96px 로 키운다. 거기서는 칸이 135px 로 넓어지는데
+                 *    높이를 그대로 두면 1.9:1 로 납작해져 달력이 아니라 표처럼 보인다.
                  */
-                "flex min-h-[4.5rem] flex-col gap-0.5 rounded-md border border-border px-0 py-1 lg:min-h-24 lg:px-1",
+                "flex min-h-[3.25rem] flex-col gap-0.5 rounded-md border border-border px-0 py-1 lg:min-h-24 lg:px-1",
                 "leading-tight tabular-nums",
                 "transition-colors hover:border-primary focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
               )}
