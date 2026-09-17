@@ -24,6 +24,10 @@ import { Button } from "@/components/ui/button";
  * 데스크톱은 상단 세그먼트 컨트롤, 모바일은 하단 탭 바다.
  * 두 목록이 갈라지지 않도록 NAV 배열 하나를 양쪽이 함께 쓴다.
  *
+ * ⚠️ 전환점이 md(768px) 다. sm(640px) 로 두면 로고·메뉴 6개·닉네임·버튼 둘이
+ *    한 줄에 못 들어가 "대시보드"·"카테고리"·닉네임이 전부 두 줄로 접힌다.
+ *    실측으로 640px 에서 링크 높이가 37px → 59px 가 되고 768px 부터 정상이다.
+ *
  * 데스크톱 탭은 회색 트랙(bg-muted) 위에 활성 항목만 흰 pill 로 띄운다.
  * 텍스트 굵기만으로 활성을 표현하면 링크 다섯 개 중 어디에 있는지 한눈에 안 들어온다.
  *
@@ -59,7 +63,7 @@ export function AppHeader({ nickname, onLogout }: AppHeaderProps) {
 
           <nav
             aria-label="주요 메뉴"
-            className="hidden items-center gap-1 rounded-lg bg-muted p-1 sm:flex"
+            className="hidden items-center gap-1 rounded-lg bg-muted p-1 md:flex"
           >
             {NAV.map(({ href, label }) => (
               <Link
@@ -79,7 +83,7 @@ export function AppHeader({ nickname, onLogout }: AppHeaderProps) {
           </nav>
 
           <div className="ml-auto flex items-center gap-2 sm:gap-3">
-            <span className="hidden text-body font-medium sm:inline">{nickname}</span>
+            <span className="hidden text-body font-medium md:inline">{nickname}</span>
             <ThemeToggle />
             <Button variant="outline" size="sm" onClick={onLogout}>
               <LogOut className="size-4" aria-hidden />
@@ -97,7 +101,7 @@ export function AppHeader({ nickname, onLogout }: AppHeaderProps) {
       <nav
         aria-label="주요 메뉴"
         style={{ gridTemplateColumns: `repeat(${NAV.length}, minmax(0, 1fr))` }}
-        className="fixed inset-x-0 bottom-0 z-40 grid border-t border-border bg-muted sm:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 grid border-t border-border bg-muted md:hidden"
       >
         {NAV.map(({ href, label, icon: Icon }) => (
           <Link
@@ -105,7 +109,11 @@ export function AppHeader({ nickname, onLogout }: AppHeaderProps) {
             href={href}
             aria-current={isActive(href) ? "page" : undefined}
             className={cn(
-              "flex flex-col items-center gap-1 py-2 text-caption transition-colors",
+              // ⚠️ whitespace-nowrap 이 핵심이다. 320px 에서 칸이 51px 인데
+              //    "대시보드" 는 13px 로 52px 라 1px 이 모자라 두 줄로 접히고,
+              //    그만큼 탭 바가 64px → 86px 로 두꺼워져 본문을 덮는다.
+              //    11px 로 낮추면 44px 라 가장 좁은 화면에서도 한 줄로 들어간다.
+              "flex flex-col items-center gap-1 py-2 text-[0.6875rem] whitespace-nowrap transition-colors",
               // 활성 탭은 액센트로 칠한다. 굵기만으로는 작은 글자에서 구분이 약하다
               isActive(href) ? "font-semibold text-primary" : "text-muted-foreground",
             )}

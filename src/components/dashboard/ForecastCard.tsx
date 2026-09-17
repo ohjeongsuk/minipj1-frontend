@@ -50,9 +50,14 @@ export function ForecastCard({ forecast, isPastMonth }: ForecastCardProps) {
         문장은 위에 짧게 두고 숫자는 자기 줄을 갖는다.
       */}
       <p className="text-caption text-muted-foreground">이 속도면</p>
-      <p className="flex items-baseline gap-1 text-3xl font-semibold tabular-nums text-expense">
+      {/*
+        ⚠️ 잔액 카드보다 작아야 한다. 예상 지출은 보조 지표이고 화면의 히어로는
+           잔액 하나다. 예전에는 text-3xl 이라 요약 카드를 줄인 뒤 이 숫자가
+           화면에서 가장 커져 위계가 뒤집혔다.
+      */}
+      <p className="flex items-baseline gap-1 text-xl font-semibold tabular-nums text-expense sm:text-2xl">
         {formatAmount(forecast.projectedExpense)}
-        <span className="text-item font-normal text-muted-foreground">원을 쓰게 돼요</span>
+        <span className="text-body font-normal text-muted-foreground sm:text-item">원을 쓰게 돼요</span>
       </p>
       <p className="text-caption text-muted-foreground tabular-nums">
         {forecast.daysElapsed}일 경과 · 최근 {forecast.basisMonths}개월 기준 · 일평균{" "}

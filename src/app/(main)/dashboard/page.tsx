@@ -127,6 +127,12 @@ function DashboardContent() {
       value: d.expense,
     }));
 
+  /*
+   * ⚠️ 카드를 2열로 나누는 시점이 lg 다. sm(640px) 에서 나누면 카드 하나가
+   *    290px 가 되는데, 이는 390px 단일 열(343px)보다 좁다. 화면이 넓어졌는데
+   *    카드는 좁아지는 구간이 생기고, 7열 캘린더처럼 폭을 먹는 카드가 거기서
+   *    잘린다. lg(1024px) 부터는 반쪽도 482px 라 실제로 넓어진다.
+   */
   return (
     <div className="flex flex-col gap-6">
       {header}
@@ -134,7 +140,7 @@ function DashboardContent() {
       <SummaryCards summary={summary} />
 
       {!isPastMonth || anomalies.length > 0 ? (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3 lg:grid-cols-2">
           <ForecastCard forecast={forecast} isPastMonth={isPastMonth} />
           <AnomalyCard anomalies={anomalies} />
         </div>
@@ -147,7 +153,7 @@ function DashboardContent() {
           description="위의 화살표로 다른 달을 볼 수 있어요."
         />
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3 lg:grid-cols-2">
           <section className={SECTION_CARD}>
             <h2 className="text-caption text-muted-foreground">카테고리별 지출</h2>
             <CategoryDonut data={donutData} total={summary.expense} percents={percents} />

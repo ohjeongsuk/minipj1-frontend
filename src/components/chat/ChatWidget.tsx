@@ -15,8 +15,11 @@ import { ChatPanel } from "@/components/chat/ChatPanel";
  * ⚠️ 대화 UI 는 ChatPanel 을 그대로 재사용한다. 껍데기(버튼·헤더·크기)만 여기 있다.
  *    두 벌로 만들면 답변 렌더링이 갈라진다.
  *
- * ⚠️ 모바일 FAB 는 bottom-20 이다. 하단 탭 바가 64px 이라 bottom-6 으로 두면
+ * ⚠️ FAB 는 bottom-20 이다. 하단 탭 바가 64px 이라 bottom-6 으로 두면
  *    "예산" 탭 위에 얹힌다.
+ *
+ * ⚠️ 전환점을 md 로 둔다. 하단 탭 바가 md 까지 떠 있으므로(AppHeader 참조)
+ *    sm 으로 두면 640~767px 에서 버튼이 탭 바 위로 내려앉는다.
  *
  * ⚠️ 그림자는 shadow-md 를 쓴다. §8 이 "그림자는 모달·드롭다운에만" 을 허용하고
  *    popover·select 가 이미 같은 값을 쓴다. --hero-shadow 는 잔액 카드 전용이며
@@ -66,7 +69,7 @@ export function ChatWidget({ userId }: ChatWidgetProps) {
         <div
           role="dialog"
           aria-label="잔고 도우미"
-          className="animate-in fade-in-0 slide-in-from-bottom-2 fixed inset-x-4 top-20 bottom-36 z-50 flex flex-col overflow-hidden rounded-xl border border-border bg-background shadow-md duration-150 sm:inset-x-auto sm:top-auto sm:right-6 sm:bottom-24 sm:h-[560px] sm:w-[380px]"
+          className="animate-in fade-in-0 slide-in-from-bottom-2 fixed inset-x-4 top-20 bottom-36 z-50 flex flex-col overflow-hidden rounded-xl border border-border bg-background shadow-md duration-150 md:inset-x-auto md:top-auto md:right-6 md:bottom-24 md:h-[560px] md:w-[380px]"
         >
           <header className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3">
             <div className="flex items-center gap-2">
@@ -115,7 +118,7 @@ export function ChatWidget({ userId }: ChatWidgetProps) {
         onClick={() => setOpen((prev) => !prev)}
         aria-expanded={open}
         aria-label={open ? "챗봇 닫기" : "챗봇 열기"}
-        className="fixed right-4 bottom-20 z-50 flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md transition-transform hover:scale-105 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none sm:right-6 sm:bottom-6"
+        className="fixed right-4 bottom-20 z-50 flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md transition-transform hover:scale-105 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none md:right-6 md:bottom-6"
       >
         {open ? (
           <X className="size-6" aria-hidden />
