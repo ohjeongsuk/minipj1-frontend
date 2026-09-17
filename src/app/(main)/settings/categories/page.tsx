@@ -7,16 +7,9 @@ import { toast } from "sonner";
 import { CategoryForm } from "@/components/category/CategoryForm";
 import type { CategoryFormValue } from "@/components/category/CategoryForm";
 import { ErrorState } from "@/components/common/ErrorState";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { ListSkeleton } from "@/components/common/ListSkeleton";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCategories } from "@/hooks/useCategories";
 import {
@@ -212,28 +205,15 @@ export default function CategoriesPage() {
         ))}
       </Tabs>
 
-      <Dialog
+      <ConfirmDialog
         open={pendingDelete !== null}
-        onOpenChange={(next) => (next ? undefined : setPendingDelete(null))}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>&apos;{pendingDelete?.name}&apos; 카테고리를 삭제할까요?</DialogTitle>
-            {/* 이 문구가 없으면 과거 데이터가 사라진다고 오해한다 (CAT-03) */}
-            <DialogDescription>
-              이 카테고리를 쓰는 과거 내역은 그대로 남습니다. 새 거래에서만 선택할 수 없게 됩니다.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setPendingDelete(null)}>
-              취소
-            </Button>
-            <Button onClick={handleDelete} disabled={remove.isPending}>
-              삭제
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        title={`'${pendingDelete?.name}' 카테고리를 삭제할까요?`}
+        // 이 문구가 없으면 과거 데이터가 사라진다고 오해한다 (CAT-03)
+        description="이 카테고리를 쓰는 과거 내역은 그대로 남습니다. 새 거래에서만 선택할 수 없게 됩니다."
+        pending={remove.isPending}
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

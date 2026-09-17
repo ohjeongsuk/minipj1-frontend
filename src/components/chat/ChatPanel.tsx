@@ -6,6 +6,7 @@ import { cn } from "cn";
 
 import { BotAvatar, SuggestionChip } from "@/components/chat/ChatBits";
 import { ChatMessage } from "@/components/chat/ChatMessage";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useChat } from "@/hooks/useChat";
@@ -103,7 +104,14 @@ export function ChatPanel({ userId, className, autoFocus = false }: ChatPanelPro
     );
   };
 
+  /*
+   * 대화 이력은 localStorage 에만 있어 지우면 복구할 수 없다.
+   * 서버에 사본이 없으므로 다른 삭제와 같게 한 번 물어본다.
+   */
+  const [confirmingClear, setConfirmingClear] = useState(false);
+
   const reset = () => {
+    setConfirmingClear(false);
     setBubbles([]);
     clearChat(userId);
     inputRef.current?.focus();
@@ -145,7 +153,7 @@ export function ChatPanel({ userId, className, autoFocus = false }: ChatPanelPro
         {bubbles.length > 0 ? (
           <button
             type="button"
-            onClick={reset}
+            onClick={() => setConfirmingClear(true)}
             className="flex items-center gap-1 text-caption text-muted-foreground hover:text-foreground"
           >
             <Trash2 className="size-3" aria-hidden />
@@ -175,6 +183,15 @@ export function ChatPanel({ userId, className, autoFocus = false }: ChatPanelPro
           </Button>
         </form>
       </div>
+
+      <ConfirmDialog
+        open={confirmingClear}
+        title="대화를 모두 지울까요?"
+        description="이 기기에만 저장된 기록이라 지우면 되돌릴 수 없습니다. 거래 내역은 지워지지 않습니다."
+        confirmLabel="지우기"
+        onCancel={() => setConfirmingClear(false)}
+        onConfirm={reset}
+      />
     </div>
   );
 }

@@ -7,6 +7,7 @@ import { toast } from "sonner";
 
 import { EmptyState } from "@/components/common/EmptyState";
 import { ErrorState } from "@/components/common/ErrorState";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { ListSkeleton } from "@/components/common/ListSkeleton";
 import { TransactionForm } from "@/components/transaction/TransactionForm";
 import { Button } from "@/components/ui/button";
@@ -68,7 +69,11 @@ export default function TransactionDetailPage() {
     }
   }
 
-  function handleDelete() {
+  // 삭제는 되돌릴 수 없다. 버튼은 확인창만 열고, 실제 삭제는 confirmDelete 가 한다
+  const [confirming, setConfirming] = useState(false);
+
+  function confirmDelete() {
+    setConfirming(false);
     remove.mutate(id, {
       onSuccess: () => {
         toast.success("거래를 삭제했습니다.");
@@ -131,13 +136,22 @@ export default function TransactionDetailPage() {
               type="button"
               variant="outline"
               disabled={remove.isPending}
-              onClick={handleDelete}
+              onClick={() => setConfirming(true)}
               className="text-destructive"
             >
               삭제
             </Button>
           </>
         }
+      />
+
+      <ConfirmDialog
+        open={confirming}
+        title="이 거래를 삭제할까요?"
+        description="삭제한 거래는 목록과 집계에서 사라집니다."
+        pending={remove.isPending}
+        onCancel={() => setConfirming(false)}
+        onConfirm={confirmDelete}
       />
 
       {/* 이탈 확인 (TXN-09). 새로고침·탭닫기는 브라우저 기본 대화상자가 맡는다 */}

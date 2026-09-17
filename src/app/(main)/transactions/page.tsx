@@ -1,9 +1,10 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useCallback } from "react";
+import { Suspense, useCallback, useState } from "react";
 import { toast } from "sonner";
 
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { ListSkeleton } from "@/components/common/ListSkeleton";
 import { Pagination } from "@/components/common/Pagination";
 import type { TransactionFilters } from "@/components/transaction/FilterBar";
@@ -12,6 +13,8 @@ import { QuickAddBar } from "@/components/transaction/QuickAddBar";
 import { TransactionList } from "@/components/transaction/TransactionList";
 import { useCategories } from "@/hooks/useCategories";
 import { useDeleteTransaction, useTransactionList } from "@/hooks/useTransactions";
+import { formatListDate } from "@/lib/date";
+import { formatSignedAmount } from "@/lib/money";
 import type { TransactionListParams } from "@/lib/queryKeys";
 import type { TransactionResponse } from "@/types/api";
 
@@ -107,6 +110,12 @@ function TransactionsContent() {
     }
   }
 
+  /*
+   * 삭제는 되돌릴 수 없으므로 확인을 한 번 받는다. 거래 전체를 들고 있는 이유는
+   * 확인창에 "무엇을" 지우는지 적어야 하기 때문이다 — id 만으로는 문구를 못 만든다.
+   */
+  const [pendingDelete, setPendingDelete] = useState<TransactionResponse | null>(null);
+
   function handleDelete(id: number) {
     /*
      * 삭제 전에 미리 판정한다. onSuccess 시점에는 낙관적 업데이트로 이미 행이 빠져 있고,
@@ -117,6 +126,9 @@ function TransactionsContent() {
     const wasOnlyItemOnPage = page > 0 && (list.data?.content.length ?? 0) === 1;
     remove.mutate(id, {
       onSuccess: () => {
+        // 낙관적 업데이트로 행이 즉시 사라져 아무 일도 안 일어난 것처럼 보인다.
+        // 상세 화면과 같은 문구로 알린다
+        toast.success("거래를 삭제했습니다.");
         if (wasOnlyItemOnPage) {
           navigate(filters, page - 1);
         }
@@ -148,7 +160,7 @@ function TransactionsContent() {
         error={list.error}
         filtered={hasAnyFilter(filters)}
         onRetry={() => void list.refetch()}
-        onDelete={handleDelete}
+        onDelete={(id) => setPendingDelete(list.data?.content.find((t) => t.id === id) ?? null)}
         onFocusQuickAdd={() => document.getElementById("quick-amount")?.focus()}
         onResetFilters={() => navigate(EMPTY_FILTERS, 0)}
       />
@@ -158,6 +170,25 @@ function TransactionsContent() {
         totalPages={list.data?.totalPages ?? 0}
         onPageChange={(next) => navigate(filters, next)}
       />
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title="이 거래를 삭제할까요?"
+        description={
+          pendingDelete
+            ? `${formatListDate(pendingDelete.txnDate)} · ${pendingDelete.category.name} · ${formatSignedAmount(pendingDelete.amount, pendingDelete.type)}`
+            : undefined
+        }
+        pending={remove.isPending}
+        onCancel={() => setPendingDelete(null)}
+        onConfirm={() => {
+          const target = pendingDelete;
+          setPendingDelete(null);
+          if (target) {
+            handleDelete(target.id);
+          }
+        }}
+      />
+
     </div>
   );
 }
