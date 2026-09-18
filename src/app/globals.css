@@ -52,6 +52,9 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-heat: var(--heat);
+  --color-grid: var(--grid);
+  --color-grid-label: var(--grid-label);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -160,6 +163,40 @@
   --input: #e5e5e5;
   --ring: #4f46e5;
 
+  /*
+   * 일별 캘린더의 배경 농도 전용 색. 라벤더(보라).
+   *
+   * ⚠️ 이 앱의 다른 색은 전부 뜻을 갖고 있어 배경으로 쓸 수 없다 —
+   *    빨강은 지출, 초록은 수입, 인디고(--primary)는 "누를 수 있음" 이다.
+   *    그중 하나로 칸을 칠하면 배경이 데이터나 조작을 흉내 낸다.
+   *
+   * ⚠️ 보라 중에서도 자주빛(271°)을 쓴다. 인디고 쪽 보라(#8B5CF6, 258°)는
+   *    액센트(243°)와 15° 밖에 안 떨어져 있어 "액센트를 흐리게 칠한 것" 으로 보인다.
+   *
+   * ⚠️ 다크에서는 색과 농도를 함께 올린다. 농도 단계(MonthHeatmap 의 LEVEL_OPACITY,
+   *    상한 15%)가 밝은 배경 기준으로 잡혀 있어, 어두운 배경에 같은 값을 깔면
+   *    거의 묻힌다 — 15% 로는 순백을 깔아도 rgb(58,58,58) 까지밖에 못 간다.
+   *    그래서 색을 한 단계 밝히고(--heat) 농도에 배수를 건다(--heat-scale).
+   *    색만 밝히면 회색으로 바래고, 농도만 올리면 어두운 보라로 남는다.
+   */
+  --heat: #a855f7;
+  --heat-scale: 1;
+
+  /*
+   * 일별 캘린더의 격자선과 라벨(일자·요일).
+   *
+   * ⚠️ --border / --muted-foreground 를 그대로 쓰지 않고 따로 둔 이유는
+   *    다크에서 요구가 다르기 때문이다. 카드 테두리는 "면이 여기서 끝난다" 는
+   *    힌트라 흐려도 되지만, 달력의 선은 어느 칸이 어느 날인지를 말하는
+   *    구조 자체다. 다크에서 --border(#262626)는 카드(#171717) 위 1.19:1 이라
+   *    칸 경계가 뭉개진다.
+   *
+   * 라이트에서는 기존과 같은 값이라 보이는 것이 달라지지 않는다.
+   * 달라지는 것은 다크뿐이다.
+   */
+  --grid: #e5e5e5;
+  --grid-label: #737373;
+
   --chart-1: #ef4444;
   --chart-2: #f59e0b;
   --chart-3: #10b981;
@@ -209,6 +246,14 @@
     --border: #262626;
     --input: #303030;
     --ring: #6366f1;
+
+    /* 어두운 배경 보정 — 위 :root 주석 참조 */
+    --heat: #c084fc;
+    --heat-scale: 1.5;
+
+    /* 달력 격자선·라벨 — 카드 테두리보다 훨씬 밝게. 위 :root 주석 참조 */
+    --grid: #666666;
+    --grid-label: #c9c9c9;
 
     --sidebar: #171717;
     --sidebar-foreground: #fafafa;
@@ -261,6 +306,14 @@
   --border: #262626;
   --input: #303030;
   --ring: #6366f1;
+
+  /* 어두운 배경 보정 — 위 :root 주석 참조 */
+  --heat: #c084fc;
+  --heat-scale: 1.5;
+
+  /* 달력 격자선·라벨 — 카드 테두리보다 훨씬 밝게. 위 :root 주석 참조 */
+  --grid: #666666;
+  --grid-label: #c9c9c9;
 
   --sidebar: #171717;
   --sidebar-foreground: #fafafa;
