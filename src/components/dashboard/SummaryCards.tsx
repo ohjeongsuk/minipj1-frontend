@@ -41,9 +41,14 @@ import type { StatsSummary } from "@/types/api";
  * 액션 바를 별도 컴포넌트로 빼지 않는다. 카드 하단에 맞물려 한 덩어리로 보이는 것이
  * 이 UI 의 요점이라, 떼어놓으면 화면이 둘의 결합 방식을 알아야 한다.
  */
+/*
+ * ⚠️ 둘의 무게가 다르다. 예전에는 둘 다 액센트로 채워 위계가 없었는데,
+ *    이 앱의 1 순위 행동은 기록이다("3초 안에 기록"). 예산 설정은 한 달에
+ *    한 번 하는 일이라 같은 무게로 두면 매번 어느 쪽을 누를지 고르게 만든다.
+ */
 const ACTIONS = [
-  { href: "/transactions", label: "내역 추가", icon: Plus },
-  { href: "/budgets", label: "예산 설정", icon: Wallet },
+  { href: "/transactions", label: "내역 추가", icon: Plus, primary: true },
+  { href: "/budgets", label: "예산 설정", icon: Wallet, primary: false },
 ] as const;
 
 export function SummaryCards({ summary }: { summary: StatsSummary }) {
@@ -117,14 +122,23 @@ export function SummaryCards({ summary }: { summary: StatsSummary }) {
         </div>
       </dl>
 
-      {/* 구분선은 액센트 위에 얹히므로 border-border 가 아니라 전경색을 흐린 값을 쓴다 */}
       {/* 5:5 다. 위 칸이 2:1:1 이라 잔액 칸 경계와 이 구분선이 같은 자리에 선다 */}
-      <div className="grid grid-cols-2 divide-x divide-primary-foreground/25 border-t border-border">
-        {ACTIONS.map(({ href, label, icon: Icon }) => (
+      {/*
+        divide-x 를 쓰지 않는다. 두 칸의 배경이 달라져서 경계가 색으로 이미 드러나고,
+        divide 는 한 가지 색만 줄 수 있어 액센트 쪽에서 너무 세거나 카드 쪽에서
+        안 보이거나 둘 중 하나가 된다. 카드 쪽에만 border-l 을 준다.
+      */}
+      <div className="grid grid-cols-2 border-t border-border">
+        {ACTIONS.map(({ href, label, icon: Icon, primary }) => (
           <Link
             key={href}
             href={href}
-            className="flex items-center justify-center gap-2 bg-primary py-3.5 text-body font-medium text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset"
+            className={cn(
+              "flex items-center justify-center gap-2 py-3.5 text-body font-medium transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset",
+              primary
+                ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                : "border-l border-border bg-card text-foreground hover:bg-muted",
+            )}
           >
             <Icon className="size-4" aria-hidden />
             {label}

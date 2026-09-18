@@ -295,7 +295,9 @@ export function TransactionForm({
                 type="button"
                 onClick={() => setCategoryId(String(c.id))}
                 className={cn(
-                  "flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-caption transition-colors",
+                  // min-h-11 은 모바일 터치 크기다. 이 칩은 shadcn Button 이 아니라
+                  // 원시 button 이라 globals.css 의 data-slot 규칙이 닿지 않는다.
+                  "flex min-h-11 items-center gap-1.5 rounded-lg border px-2.5 py-1 text-caption transition-colors sm:min-h-0",
                   categoryId === String(c.id) ? "border-ring font-semibold" : "border-border",
                 )}
               >

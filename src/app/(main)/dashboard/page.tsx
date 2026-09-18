@@ -167,7 +167,18 @@ function DashboardContent() {
           description="위의 화살표로 다른 달을 볼 수 있어요."
         />
       ) : (
-        <div className="grid gap-3 lg:grid-cols-2">
+        /*
+         * items-start 는 이 줄에만 건다.
+         *
+         * grid 의 기본값(stretch)은 두 카드를 큰 쪽 높이에 맞추는데, 여기서는
+         * 도넛 카드가 258px 이고 예산 카드가 380px 이라 도넛 카드 아래에 122px
+         * 이 빈 채로 남는다. 카드 삼분의 일이 비면 "덜 그려졌나" 로 읽힌다.
+         *
+         * ⚠️ 위의 예상 지출 · 이상치 줄에는 걸지 않는다. 거기 차이는 26px 이라
+         *    늘어나도 빈 느낌이 없고, 오히려 아래 모서리가 맞아 정돈돼 보인다.
+         *    "카드는 제 내용만큼" 을 규칙으로 못 박지 않고 줄마다 재서 정한다.
+         */
+        <div className="grid items-start gap-3 lg:grid-cols-2">
           <section className={SECTION_CARD}>
             <h2 className="text-caption text-muted-foreground">카테고리별 지출</h2>
             <CategoryDonut data={donutData} total={summary.expense} percents={percents} />

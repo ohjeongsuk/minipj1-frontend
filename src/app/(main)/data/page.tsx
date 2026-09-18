@@ -4,6 +4,8 @@ import { Download, TriangleAlert, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { cn } from "cn";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +15,20 @@ import { currentMonth, monthRange } from "@/lib/date";
 import { resolveError } from "@/lib/errorMessages";
 import type { ImportResultResponse } from "@/types/api";
 import { INLINE_ERROR, SECTION_CARD } from "@/lib/utils";
+
+/**
+ * 고른 파일의 크기 표기.
+ *
+ * 상한이 1MB 라 KB 까지만 있으면 "한도에 가까운가" 를 바로 알 수 있다.
+ * lib 로 빼지 않는다 — 이 화면 말고 파일을 다루는 곳이 없다.
+ */
+function formatFileSize(bytes: number): string {
+  return bytes < 1024
+    ? `${bytes}B`
+    : bytes < 1024 * 1024
+      ? `${Math.round(bytes / 1024)}KB`
+      : `${(bytes / 1024 / 1024).toFixed(1)}MB`;
+}
 
 /** 내보내기·가져오기가 같은 형식을 쓴다는 것을 화면에서 바로 보여준다 */
 const FORMAT_COLUMNS = [
@@ -115,15 +131,46 @@ export default function DataPage() {
           이미 가져온 파일을 다시 올리면 중복 등록됩니다. 최대 1MB · 5,000행까지 받습니다.
         </p>
 
+        {/*
+          파일 입력은 브라우저 기본 모양을 그대로 쓰지 않는다.
+          "파일 선택  선택된 파일 없음" 이 텍스트 필드처럼 보여, 이 화면만
+          다른 화면과 다른 규격으로 읽혔다. input 은 숨기고 버튼으로 연다.
+
+          ⚠️ input 을 display:none 으로 지우지 않고 sr-only 로 둔다. 지우면
+             포커스를 받지 못해 키보드로 파일을 고를 수 없고, 폼 검증 메시지도
+             붙을 자리가 없어진다. 화면에서만 감추고 접근성 트리에는 남긴다.
+
+          ⚠️ 버튼의 htmlFor 대신 click() 을 쓴다. Label 로 감싸면 버튼 안에
+             라벨이 들어가 버튼이 두 번 눌리는 브라우저가 있다.
+        */}
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="import-file">CSV 파일</Label>
-          <Input
+          <input
             id="import-file"
             ref={fileRef}
             type="file"
             accept=".csv,text/csv"
+            className="sr-only"
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
           />
+          <div className="flex items-center gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => fileRef.current?.click()}
+            >
+              <Upload className="size-4" aria-hidden />
+              CSV 파일 고르기
+            </Button>
+            <span
+              className={cn(
+                "min-w-0 flex-1 truncate text-caption",
+                file ? "text-foreground" : "text-muted-foreground",
+              )}
+            >
+              {file ? `${file.name} · ${formatFileSize(file.size)}` : "선택된 파일 없음"}
+            </span>
+          </div>
         </div>
 
         {importError ? (
