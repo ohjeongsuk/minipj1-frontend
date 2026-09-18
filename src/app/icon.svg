@@ -1,9 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
-  <rect width="256" height="256" rx="56" fill="#e4573a"/>
+  <!-- 타일 색은 globals.css 의 로고 링 토큰과 같은 값이다. 한쪽만 바꾸면
+       헤더 로고와 브라우저 탭 아이콘의 색이 갈라진다.
+       XML 주석에는 하이픈 두 개를 쓸 수 없어 토큰 이름을 그대로 적지 못한다. -->
+  <rect width="256" height="256" rx="56" fill="#2563eb"/>
   <g transform="translate(48 48) scale(0.625)">
     <path d="M216.8 86.6 A98 98 0 1 1 145 31.5" fill="none" stroke="#fff8f5" stroke-width="20"/>
     <circle cx="216.8" cy="86.6" r="10" fill="#fff8f5"/>
-    <path d="M148.8 9.8 L172.6 36.4 L141.2 53.2 Z" fill="#2b2b2b"/>
+    <!-- 화살촉은 코랄 타일 시절 #2b2b2b 로 3.9:1 이었다. 파랑 타일은 더 어두워
+         같은 값이면 2.73:1 로 비텍스트 기준(3:1)에 못 미쳐 한 단계 더 어둡게 잡았다. -->
+    <path d="M148.8 9.8 L172.6 36.4 L141.2 53.2 Z" fill="#1a1a1a"/>
     <path d="M60 94 L94 172 L128 102 L162 172 L196 94" fill="none" stroke="#fff8f5" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/>
     <path d="M60 127 L196 127" fill="none" stroke="#fff8f5" stroke-width="13" stroke-linecap="round"/>
   </g>

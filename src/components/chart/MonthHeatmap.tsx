@@ -62,16 +62,16 @@ function level(ratio: number): number {
  * 금액 줄.
  *
  * 칸 폭이 7열에 묶여 있어 화면 폭에 따라 세 단계로 나눈다.
- * 기준은 "원" 까지 붙인 최악값("16.8만원" 6자)이 칸 안쪽에 들어가는가다.
+ * 기준은 부호까지 붙인 최악값("-10.7만원" 7자)이 칸 안쪽에 들어가는가다.
  *
  * | 화면     | 칸 폭  | 들어가는 최대 | 채택   |
  * |----------|-------|-------------|--------|
- * | 320px    | 33.6px| 8px         | 7.5px  |
- * | xs(360~) | 39.3px| 9.5px       | 9px    |
+ * | 320px    | 33.6px| 7.5px       | 7px    |
+ * | xs(360~) | 39.3px| 8.5px       | 8px    |
  * | sm(640~) | 74.7px| 16px 이상    | 15px   |
  *
  * ⚠️ xs 한 칸이 360~639px 를 다 덮으므로 그 구간의 천장은 가장 좁은 360px 이 정한다.
- *    390px 이면 칸이 43.6px 라 11px 까지 들어가지만 9px 를 쓴다. 그 사이에
+ *    390px 이면 칸이 43.6px 라 9.5px 까지 들어가지만 8px 를 쓴다. 그 사이에
  *    breakpoint 를 하나 더 만들면 1~2px 을 더 얻지만, 토큰이 하나 늘어난다.
  *
  * ⚠️ 한계값을 그대로 쓰지 않고 한 단계 낮춰 잡는다. 폰트 로딩 전 대체 글꼴이
@@ -87,24 +87,39 @@ function level(ratio: number): number {
  *
  * ⚠️ 15px 를 lg 가 아니라 sm 부터 켠다. 640px 이면 칸이 74.7px 라 이미 충분한데,
  *    lg 까지 미루면 640~1023px 구간만 이유 없이 작은 글자를 쓰게 된다.
- *    15px 인 이유는 자리가 남아서가 아니라 대비 때문이다 — 수입 초록(2.5:1)과
- *    지출 빨강(3.8:1)은 본문 대비 4.5:1 에 못 미쳐 크기로 읽히게 해야 한다.
+ *
+ * ⚠️ 색은 수입 초록·지출 빨강이 아니라 잉크색(text-foreground)이다.
+ *    §8 은 "금액의 방향을 색으로 구분" 을 액센트 규칙의 예외로 두지만, 이 칸에서는
+ *    그 두 색이 배경 농도 위에 얹혀 가장 안 읽히는 글자가 됐다 — 실측으로
+ *    지출 빨강 3.0:1, 수입 초록 2.0:1 로 본문 기준(4.5:1)에 한참 못 미쳤다.
+ *    잉크색은 같은 자리에서 14.9:1 이다. 방향은 색 대신 부호가 말한다(short 참조).
+ *
+ * ⚠️ 목록·요약 카드의 금액은 바꾸지 않는다. 그쪽은 배경이 흰 카드라 초록·빨강이
+ *    제 대비를 내고, 색으로 훑는 것이 실제로 도움이 된다. 여기만 예외인 이유는
+ *    칸마다 배경 농도가 다른 히트맵이기 때문이다.
  *
  * 그 결과 sm 이상에서 금액(15px)이 일자(13px)보다 커진다. 일자는 "몇 일인가" 를
  * 말하는 라벨이고 금액이 이 칸의 데이터이므로 위계가 뒤집힌 것이 아니다.
  */
-/* rem 을 쓴다 — 사용자가 브라우저 기본 글꼴을 키웠을 때 함께 커져야 한다.
-   0.46875rem = 7.5px, 0.5625rem = 9px (기본 16px 기준) */
-const AMOUNT = "truncate text-[0.46875rem] xs:text-[0.5625rem] sm:text-body";
+/* ⚠️ 부호가 한 글자를 더 먹는다. 부호 없이 재면 각각 8px·9.5px 까지 들어가므로,
+      표기를 바꿀 때는 위 표도 다시 재야 한다. 실제로 부호를 붙인 뒤 360px 에서
+      "-10.7만원" 이 1px 잘렸다.
+
+   rem 을 쓴다 — 사용자가 브라우저 기본 글꼴을 키웠을 때 함께 커져야 한다.
+   0.4375rem = 7px, 0.5rem = 8px (기본 16px 기준) */
+const AMOUNT =
+  "truncate text-foreground text-[0.4375rem] xs:text-[0.5rem] sm:text-body";
 
 /**
  * 글자가 읽히는 범위까지만 칠한다.
  *
- * ⚠️ 예전 최대값은 1 이었다. 칸에 글자가 없던 시절에는 그래도 됐지만, 지금은
- *    같은 칸에 빨간 지출 금액이 얹힌다. 빨강 위의 빨강은 대비가 2.5:1 까지
- *    떨어져 둘 다 안 읽힌다. 0.15 로 낮추면 3.1:1 로, 이 앱이 원래 쓰는
- *    흰 배경 위 빨강(3.8:1)에 가까워진다.
+ * ⚠️ 상한이 0.15 다. 예전 최대값은 1 이었는데, 칸에 글자가 없던 시절 이야기다.
+ *    지금은 같은 칸에 금액이 얹히므로 농도를 올리면 글자가 먼저 죽는다.
  *    농도는 "어느 날이 무거웠나" 를 훑는 용도로만 남기고, 크기는 숫자가 말한다.
+ *
+ * ⚠️ 칠하는 색은 --color-heat(라벤더) 전용 토큰이다. 이 앱의 다른 색은 전부
+ *    뜻을 갖고 있어 쓸 수 없다 — 빨강은 지출, 초록은 수입, 인디고는 "누를 수 있음".
+ *    고른 이유는 globals.css 의 --color-heat 주석에 적었다.
  */
 const LEVEL_OPACITY = [0, 0.04, 0.07, 0.11, 0.15];
 
@@ -122,9 +137,15 @@ const LEVEL_OPACITY = [0, 0.04, 0.07, 0.11, 0.15];
  * "원" 은 화면 폭과 무관하게 항상 붙인다. 숫자만 떠 있으면 금액으로 안 읽히고,
  * 좁은 화면은 "원" 을 떼는 대신 AMOUNT 가 글자를 줄여 자리를 만든다.
  * 축약값의 정확한 금액은 칸의 title·aria-label 이 원 단위로 따로 준다.
+ *
+ * ⚠️ 부호를 붙인다. 금액 글자를 잉크색으로 통일하면서 수입·지출을 색으로 구분할 수
+ *    없게 됐는데, 0 원 줄을 감춘 뒤로는 칸에 금액이 한 줄만 있는 경우가 대부분이라
+ *    그 한 줄이 들어온 돈인지 나간 돈인지 알 방법이 사라진다. 부호가 그 자리를 대신한다.
+ *    내역 화면의 formatSignedAmount 가 이미 쓰는 표기라 새 관례가 아니다.
+ *    (그쪽은 원 단위 전체 표기라 함수를 공유하지 않고 축약본을 여기서 만든다)
  */
-function short(value: number): string {
-  return `${formatAmountShort(value)}원`;
+function short(value: number, type: "INCOME" | "EXPENSE"): string {
+  return `${type === "INCOME" ? "+" : "-"}${formatAmountShort(value)}원`;
 }
 
 export function MonthHeatmap({ data, hrefFor }: MonthHeatmapProps) {
@@ -138,7 +159,7 @@ export function MonthHeatmap({ data, hrefFor }: MonthHeatmapProps) {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="grid grid-cols-7 gap-0.5 text-center text-caption text-muted-foreground lg:gap-1">
+      <div className="grid grid-cols-7 gap-0.5 text-center text-caption font-medium text-grid-label lg:gap-1">
         {WEEKDAYS.map((day) => (
           <span key={day}>{day}</span>
         ))}
@@ -173,13 +194,15 @@ export function MonthHeatmap({ data, hrefFor }: MonthHeatmapProps) {
                  * ⚠️ lg 는 반대로 96px 로 키운다. 거기서는 칸이 135px 로 넓어지는데
                  *    높이를 그대로 두면 1.9:1 로 납작해져 달력이 아니라 표처럼 보인다.
                  */
-                "flex min-h-[3.25rem] flex-col gap-0.5 rounded-md border border-border px-0 py-1 lg:min-h-24 lg:px-1",
+                "flex min-h-[3.25rem] flex-col gap-0.5 rounded-md border border-grid px-0 py-1 lg:min-h-24 lg:px-1",
                 "leading-tight tabular-nums",
                 "transition-colors hover:border-primary focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
               )}
               style={{
                 backgroundColor:
-                  opacity > 0 ? `color-mix(in srgb, var(--color-expense) ${opacity * 100}%, transparent)` : undefined,
+                  opacity > 0
+                    ? `color-mix(in srgb, var(--color-heat) calc(${opacity * 100}% * var(--heat-scale)), transparent)`
+                    : undefined,
               }}
             >
               {/*
@@ -188,22 +211,22 @@ export function MonthHeatmap({ data, hrefFor }: MonthHeatmapProps) {
                 날짜는 이 칸의 이름이라 "14일을 찾는다" 는 훑기의 기준점이고,
                 10px muted(#737373) 는 그러기에 너무 흐렸다. 굵기가 그걸 메운다.
 
-                ⚠️ 색까지 올리지 않는다. 위계를 색이 맡고 있기 때문이다 —
-                   일자는 회색, 금액은 수입 초록·지출 빨강이다. 일자를 foreground 로
-                   올리면 굵기와 색이 동시에 세져 이 칸의 데이터인 금액을 누른다.
+                ⚠️ 색은 --grid-label 이다. 다크에서 muted(#a3a3a3)가 어둡게 느껴져
+                   한 단계 밝힌 값(#c9c9c9)을 쓰되, 잉크색 금액보다는 여전히 흐리다.
+                   일자까지 foreground 로 올리면 이 칸의 데이터인 금액과 구분되지 않는다.
                    특히 모바일은 일자(10px)가 금액(9px)보다 이미 크다.
               */}
-              <span className="font-semibold text-[0.625rem] text-muted-foreground lg:text-caption">
+              <span className="font-semibold text-[0.625rem] text-grid-label lg:text-caption">
                 {day}
               </span>
               {/* 앱의 다른 화면과 같은 순서로 둔다 — 총수입 다음 총지출.
-                  0 인 줄은 그리지 않으므로 muted 분기도 함께 사라진다.
-                  그려지는 금액은 언제나 0 보다 크고, 그러면 색은 수입·지출 둘 중 하나다. */}
+                  0 인 줄은 아예 그리지 않는다. 좁은 칸에서 "0원" 두 줄이 자리를
+                  차지하면 정작 값이 있는 날이 눈에 띄지 않는다. */}
               {datum.income > 0 ? (
-                <span className={cn(AMOUNT, "text-income")}>{short(datum.income)}</span>
+                <span className={AMOUNT}>{short(datum.income, "INCOME")}</span>
               ) : null}
               {datum.expense > 0 ? (
-                <span className={cn(AMOUNT, "text-expense")}>{short(datum.expense)}</span>
+                <span className={AMOUNT}>{short(datum.expense, "EXPENSE")}</span>
               ) : null}
             </Link>
           );
