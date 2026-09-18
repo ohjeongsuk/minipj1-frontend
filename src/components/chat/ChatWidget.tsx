@@ -57,8 +57,14 @@ interface Pos {
 
 /** 버튼이 화면 밖으로 나가지 않게 가둔다 */
 function clampToViewport({ x, y }: Pos): Pos {
-  const maxX = Math.max(EDGE, window.innerWidth - FAB_SIZE - EDGE);
-  const maxY = Math.max(EDGE, window.innerHeight - FAB_SIZE - EDGE);
+  /*
+   * ⚠️ innerWidth 가 아니라 clientWidth 다. 앞의 것은 스크롤바를 포함하는데
+   *    position: fixed 의 기준은 스크롤바를 뺀 폭이라, innerWidth 로 가두면
+   *    버튼이 스크롤바 아래(약 15px)로 밀려 끝부분이 가려진다.
+   */
+  const view = document.documentElement;
+  const maxX = Math.max(EDGE, view.clientWidth - FAB_SIZE - EDGE);
+  const maxY = Math.max(EDGE, view.clientHeight - FAB_SIZE - EDGE);
   return {
     x: Math.min(Math.max(x, EDGE), maxX),
     y: Math.min(Math.max(y, EDGE), maxY),
@@ -237,6 +243,22 @@ export function ChatWidget({ userId }: ChatWidgetProps) {
 
         ⚠️ 키보드로는 옮길 수 없다. 대신 기본 자리가 늘 유효하고, Enter·Space 로
            여는 경로는 그대로다. 위치는 취향이지 기능이 아니라 이 정도로 둔다.
+
+        ⚠️ 데스크톱의 right 는 고정값이 아니라 max() 다.
+           `max(1.5rem, calc(50% - 32rem - 4.5rem))`
+           32rem 은 본문 절반(max-w-5xl = 64rem)이고 4.5rem 은 버튼(3.5rem) + 간격(1rem) 이다.
+           즉 **본문 오른쪽 끝에서 16px 떨어진 자리**를 가리키며, 화면이 좁아 그 값이
+           1.5rem 아래로 내려가면 max() 가 화면 우하단(1.5rem)으로 되돌린다.
+           전환점은 뷰포트 1216px 이고, 그 아래로는 기존 동작과 완전히 같다.
+
+           고정값으로 두면 넓은 화면에서 버튼이 본문과 멀어진다 — 1920px 에서 369px,
+           1512px 에서 157px 이다. 그만큼 떨어지면 시선도 커서도 본문에 있는데
+           버튼만 화면 구석에 남는다. max() 는 화면이 아니라 **본문을 기준으로 잡되,
+           자리가 없으면 물러난다.**
+
+        ⚠️ bottom 은 건드리지 않는다. AdSlot 이 max-h-[calc(100dvh-12rem)] 로 제 높이를
+           깎아 이 버튼 자리를 비켜주도록 맞춰져 있다(항상 16px 위에서 끝난다).
+           세로를 옮기면 그 조율이 깨진다.
       */}
       <button
         ref={fabRef}
@@ -259,7 +281,7 @@ export function ChatWidget({ userId }: ChatWidgetProps) {
             ? { left: pos.x, top: pos.y, right: "auto", bottom: "auto" }
             : undefined
         }
-        className="fixed right-4 bottom-20 z-50 flex size-14 touch-none items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md transition-transform select-none hover:scale-105 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none md:right-6 md:bottom-6"
+        className="fixed right-4 bottom-20 z-50 flex size-14 touch-none items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md transition-transform select-none hover:scale-105 focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none md:right-[max(1.5rem,calc(50%_-_32rem_-_4.5rem))] md:bottom-6"
       >
         {open ? (
           <X className="size-6" aria-hidden />
