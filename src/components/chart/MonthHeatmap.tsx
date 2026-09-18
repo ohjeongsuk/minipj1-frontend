@@ -27,9 +27,9 @@ import { cn } from "@/lib/utils";
  *    안쪽이 25px 뿐이라 "10.7만"(30px) 이 잘린다. 요일 머리글의 간격도
  *    함께 줄여야 열이 어긋나지 않는다.
  *
- * ⚠️ 0 원 글자에 투명도를 주지 않는다. muted-foreground/60 으로 흐리게 두면
+ * ⚠️ 금액에 투명도를 주지 않는다. muted-foreground/60 으로 흐리게 두면
  *    다크 모드에서 대비가 3.45:1 까지 떨어진다. 사용자가 보여 달라고 한 값이라
- *    장식이 아니다. 색(초록·빨강 vs 회색)만으로도 0 과 구분된다.
+ *    장식이 아니다.
  *
  * ⚠️ 라우트를 여기서 정하지 않는다. hrefFor 로 받는다.
  *    차트는 화면이 어떤 주소 체계를 쓰는지 몰라야 한다 (CLAUDE.md 3장).
@@ -109,14 +109,22 @@ const AMOUNT = "truncate text-[0.46875rem] xs:text-[0.5625rem] sm:text-body";
 const LEVEL_OPACITY = [0, 0.04, 0.07, 0.11, 0.15];
 
 /**
- * 0 원도 그대로 보여준다. 빈칸으로 두면 "기록이 없다" 와 "0 원" 이 구분되지 않는다.
+ * 0 원인 줄은 아예 그리지 않는다.
+ *
+ * 예전에는 "0원" 을 찍었다. 빈칸이 "기록이 없다" 와 "0 원" 두 뜻으로 읽힐까 봐서인데,
+ * 이 앱에서는 그 둘이 같은 상태다 — CLAUDE.md 4장이 amount > 0 을 DB 제약과 DTO
+ * 양쪽에 걸어 두어 금액 0 짜리 거래가 존재할 수 없다. 합계가 0 이면 그날 그 종류의
+ * 거래가 없었다는 뜻뿐이고, 달력에서는 빈 자리가 그것을 이미 말한다.
+ *
+ * ⚠️ 화면에서만 지운다. 칸의 title 과 aria-label 은 수입·지출을 원 단위로 계속 적는다.
+ *    스크린리더 사용자는 빈 자리를 "없음" 으로 읽을 방법이 없기 때문이다.
  *
  * "원" 은 화면 폭과 무관하게 항상 붙인다. 숫자만 떠 있으면 금액으로 안 읽히고,
  * 좁은 화면은 "원" 을 떼는 대신 AMOUNT 가 글자를 줄여 자리를 만든다.
  * 축약값의 정확한 금액은 칸의 title·aria-label 이 원 단위로 따로 준다.
  */
 function short(value: number): string {
-  return value === 0 ? "0원" : `${formatAmountShort(value)}원`;
+  return `${formatAmountShort(value)}원`;
 }
 
 export function MonthHeatmap({ data, hrefFor }: MonthHeatmapProps) {
@@ -174,14 +182,29 @@ export function MonthHeatmap({ data, hrefFor }: MonthHeatmapProps) {
                   opacity > 0 ? `color-mix(in srgb, var(--color-expense) ${opacity * 100}%, transparent)` : undefined,
               }}
             >
-              <span className="text-[0.625rem] text-muted-foreground lg:text-caption">{day}</span>
-              {/* 앱의 다른 화면과 같은 순서로 둔다 — 총수입 다음 총지출 */}
-              <span className={cn(AMOUNT, datum.income > 0 ? "text-income" : "text-muted-foreground")}>
-                {short(datum.income)}
+              {/*
+                일자는 굵게 두되 색은 muted 로 남긴다.
+
+                날짜는 이 칸의 이름이라 "14일을 찾는다" 는 훑기의 기준점이고,
+                10px muted(#737373) 는 그러기에 너무 흐렸다. 굵기가 그걸 메운다.
+
+                ⚠️ 색까지 올리지 않는다. 위계를 색이 맡고 있기 때문이다 —
+                   일자는 회색, 금액은 수입 초록·지출 빨강이다. 일자를 foreground 로
+                   올리면 굵기와 색이 동시에 세져 이 칸의 데이터인 금액을 누른다.
+                   특히 모바일은 일자(10px)가 금액(9px)보다 이미 크다.
+              */}
+              <span className="font-semibold text-[0.625rem] text-muted-foreground lg:text-caption">
+                {day}
               </span>
-              <span className={cn(AMOUNT, datum.expense > 0 ? "text-expense" : "text-muted-foreground")}>
-                {short(datum.expense)}
-              </span>
+              {/* 앱의 다른 화면과 같은 순서로 둔다 — 총수입 다음 총지출.
+                  0 인 줄은 그리지 않으므로 muted 분기도 함께 사라진다.
+                  그려지는 금액은 언제나 0 보다 크고, 그러면 색은 수입·지출 둘 중 하나다. */}
+              {datum.income > 0 ? (
+                <span className={cn(AMOUNT, "text-income")}>{short(datum.income)}</span>
+              ) : null}
+              {datum.expense > 0 ? (
+                <span className={cn(AMOUNT, "text-expense")}>{short(datum.expense)}</span>
+              ) : null}
             </Link>
           );
         })}
