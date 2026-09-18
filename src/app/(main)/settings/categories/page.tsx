@@ -1,6 +1,6 @@
 "use client";
 
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -81,6 +81,45 @@ export default function CategoriesPage() {
     }
   }
 
+  /*
+   * 순서 바꾸기. 이웃과 자리를 맞바꾸고 두 항목만 다시 저장한다.
+   *
+   * ⚠️ 두 항목의 sortOrder 값을 서로 교환하지 않고 **새 자리의 인덱스**를 쓴다.
+   *    값 교환은 두 항목의 sortOrder 가 같을 때(사용자가 수정 폼에서 직접
+   *    같은 값을 넣을 수 있다) 아무 일도 일어나지 않는다. 인덱스를 쓰면
+   *    그런 목록도 누를 때마다 0,1,2... 로 스스로 정리된다.
+   *
+   * ⚠️ 움직인 둘만 저장한다. 목록 전체를 renumber 하면 카테고리 수만큼
+   *    PUT 이 나가는데, 얻는 것은 "값이 항상 연속" 뿐이다. 정렬은
+   *    sortOrder ASC, id ASC 라 연속이 아니어도 순서는 정확하다.
+   */
+  async function handleMove(index: number, direction: -1 | 1) {
+    const target = visible[index];
+    const neighbor = visible[index + direction];
+    if (!target || !neighbor) {
+      return;
+    }
+    try {
+      await Promise.all([
+        update.mutateAsync({
+          id: target.id,
+          name: target.name,
+          color: target.color,
+          sortOrder: index + direction,
+        }),
+        update.mutateAsync({
+          id: neighbor.id,
+          name: neighbor.name,
+          color: neighbor.color,
+          sortOrder: index,
+        }),
+      ]);
+    } catch (error) {
+      const apiError = error instanceof ApiRequestError ? error.error : null;
+      toast.error(resolveError(apiError).message);
+    }
+  }
+
   function handleDelete() {
     if (!pendingDelete) {
       return;
@@ -109,7 +148,7 @@ export default function CategoriesPage() {
         {(["EXPENSE", "INCOME"] as const).map((value) => (
           <TabsContent key={value} value={value} className="flex flex-col gap-6">
             <ul className={HAIRLINE_LIST}>
-              {visible.map((category) => (
+              {visible.map((category, index) => (
                 <li key={category.id} className={`p-3 ${HAIRLINE_ITEM}`}>
                   {editingId === category.id ? (
                     <CategoryForm
@@ -137,9 +176,29 @@ export default function CategoriesPage() {
                       <span className="min-w-0 flex-1 truncate text-item font-semibold">
                         {category.name}
                       </span>
-                      <span className="shrink-0 text-caption text-muted-foreground tabular-nums">
-                        순서 {category.sortOrder}
-                      </span>
+                      {/*
+                        예전에는 여기에 "순서 0" 처럼 sortOrder 값을 적었다.
+                        0 부터 시작하는 내부 인덱스라 사용자에게는 뜻이 없고
+                        "0 번이 뭐지" 만 남았다. 값을 보여주는 대신 바꾸게 한다.
+                      */}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={`${category.name} 위로`}
+                        disabled={index === 0 || update.isPending}
+                        onClick={() => void handleMove(index, -1)}
+                      >
+                        <ChevronUp className="size-4" aria-hidden />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={`${category.name} 아래로`}
+                        disabled={index === visible.length - 1 || update.isPending}
+                        onClick={() => void handleMove(index, 1)}
+                      >
+                        <ChevronDown className="size-4" aria-hidden />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="icon"

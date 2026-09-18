@@ -61,7 +61,9 @@ export function AppHeader({ nickname, onLogout }: AppHeaderProps) {
           {/* 워드마크는 아직 정하지 않았다. 그때까지 헤더는 마크 + "잔고" 텍스트로 쓴다 */}
           <Link
             href="/dashboard"
-            className="flex shrink-0 items-center gap-2 text-item font-semibold"
+            // min-h-11: 로고도 /dashboard 로 가는 링크라 손가락으로 눌린다.
+            // 높이만 26px 이었다. 폭은 62px 라 손대지 않는다.
+            className="flex min-h-11 shrink-0 items-center gap-2 text-item font-semibold sm:min-h-0"
           >
             <Logo size={26} />
             잔고
